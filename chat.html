@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Orbiit — Chat</title>
+  <meta name="description" content="Chat with your connections on Orbiit.">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/globe.css">
+  <link rel="stylesheet" href="css/chat.css">
+</head>
+<body>
+  <div class="chat-layout">
+    <!-- Left Sidebar -->
+    <nav class="left-sidebar">
+      <img src="assets/logo.svg" class="sidebar-logo" alt="Orbiit" onerror="this.style.display='none'">
+      <div class="sidebar-status"><div class="sidebar-status-dot"></div></div>
+      <div class="sidebar-nav">
+        <a href="globe.html" class="sidebar-nav-item" title="Globe">🌍</a>
+        <a href="chat.html" class="sidebar-nav-item active" title="Chats">💬</a>
+        <a href="#" class="sidebar-nav-item" title="Requests">🔔</a>
+        <a href="profile.html" class="sidebar-nav-item" title="Profile">👤</a>
+        <a href="settings.html" class="sidebar-nav-item" title="Settings">⚙️</a>
+      </div>
+      <div class="sidebar-bottom">
+        <img src="assets/default-avatar.svg" class="sidebar-avatar" id="sidebar-user-avatar" alt="You">
+      </div>
+    </nav>
+
+    <!-- Chat Sidebar (Conversations) -->
+    <aside class="chat-sidebar">
+      <div class="chat-sidebar-header">
+        <h2 class="chat-sidebar-title">💬 Messages</h2>
+        <div class="chat-search">
+          <span class="chat-search-icon">🔍</span>
+          <input type="text" class="chat-search-input" id="chat-search" placeholder="Search conversations...">
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="chat-tabs">
+        <button class="chat-tab active" data-tab="chats">Chats</button>
+        <button class="chat-tab" data-tab="requests">
+          Requests
+          <span class="tab-badge" id="requests-tab-badge" style="display:none">0</span>
+        </button>
+      </div>
+
+      <!-- Conversation List -->
+      <div class="conversation-list scroll-area" id="conversation-list">
+        <!-- filled by JS -->
+      </div>
+
+      <!-- Requests List -->
+      <div class="conversation-list scroll-area" id="requests-list" style="display:none">
+        <!-- filled by JS -->
+      </div>
+    </aside>
+
+    <!-- Chat Window -->
+    <div class="chat-window" id="chat-window">
+      <!-- Empty State -->
+      <div class="chat-empty" id="chat-empty">
+        <div class="chat-empty-icon">💬</div>
+        <div class="chat-empty-text">Select a conversation</div>
+        <div class="chat-empty-hint">Choose from your connections or respond to a request</div>
+      </div>
+
+      <!-- Active Chat (hidden by default) -->
+      <div id="active-chat" style="display:none; flex-direction:column; height:100%;">
+        <div class="chat-header" id="chat-header">
+          <img src="assets/default-avatar.svg" class="chat-header-avatar" id="chat-header-avatar" alt="User">
+          <div class="chat-header-info">
+            <div class="chat-header-name" id="chat-header-name">User Name</div>
+            <div class="chat-header-status" id="chat-header-status">Offline</div>
+          </div>
+          <div class="chat-header-actions">
+            <button class="btn btn-ghost btn-sm" id="btn-view-profile">View Profile</button>
+          </div>
+        </div>
+
+        <div class="chat-messages scroll-area" id="chat-messages">
+          <!-- Messages filled by JS -->
+        </div>
+
+        <div class="chat-input-bar">
+          <button class="chat-emoji-btn">😊</button>
+          <div class="chat-input-wrapper">
+            <textarea class="chat-input" id="chat-input" placeholder="Type a message..." rows="1"></textarea>
+          </div>
+          <button class="chat-send-btn" id="btn-send-message">➤</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/data/sampleUsers.js"></script>
+  <script src="js/lib/supabase.js"></script>
+  <script src="js/auth.js"></script>
+    <script src="js/lib/emoji.js"></script>
+  <script src="js/chat.js"></script>
+</body>
+</html>

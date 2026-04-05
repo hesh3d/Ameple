@@ -1,0 +1,998 @@
+/* ===================================================
+   Orbiit — Main CSS (Global Design System)
+   iOS 18 Font & Emoji Foundation — SF Pro + Apple Emoji
+   =================================================== */
+
+
+/* --- SF Pro Font (Apple iOS 18) loaded from CDN --- */
+@font-face {
+  font-family: 'SF Pro Display';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('https://cdn.jsdelivr.net/npm/sf-pro@1.0.3/font/woff2/sf-pro-display_regular.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'SF Pro Display';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('https://cdn.jsdelivr.net/npm/sf-pro@1.0.3/font/woff2/sf-pro-display_medium.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'SF Pro Display';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('https://cdn.jsdelivr.net/npm/sf-pro@1.0.3/font/woff2/sf-pro-display_semibold.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'SF Pro Display';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('https://cdn.jsdelivr.net/npm/sf-pro@1.0.3/font/woff2/sf-pro-display_bold.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'SF Pro Text';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('https://cdn.jsdelivr.net/npm/sf-pro@1.0.3/font/woff2/sf-pro-text_regular.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'SF Pro Text';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('https://cdn.jsdelivr.net/npm/sf-pro@1.0.3/font/woff2/sf-pro-text_semibold.woff2') format('woff2');
+}
+
+/* --- CSS Variables --- */
+:root {
+  --bg-primary: #FFFDEB;
+  --bg-secondary: #F7F8FA;
+  --bg-tertiary: #EFEFEF;
+  --text-primary: #111111;
+  --text-secondary: #6B7280;
+  --text-tertiary: #9CA3AF;
+  --accent: #2563EB;
+  --accent-light: #EFF6FF;
+  --accent-hover: #1D4ED8;
+  --success: #10B981;
+  --warning: #F59E0B;
+  --error: #EF4444;
+  --online: #22C55E;
+  --border: #E5E7EB;
+  --border-light: #F3F4F6;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04);
+  --shadow-lg: 0 20px 60px rgba(0,0,0,0.12), 0 8px 24px rgba(0,0,0,0.06);
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
+  --font-body: 'SF Pro Text', 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+  --font-display: 'SF Pro Display', 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+  --transition: all 0.2s ease;
+}
+
+/* --- CSS Reset --- */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-body);
+  font-weight: 400;
+  color: var(--text-primary);
+  background-color: var(--bg-primary);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+img, video, svg {
+  display: block;
+  max-width: 100%;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+  transition: var(--transition);
+}
+
+a:hover {
+  color: var(--accent-hover);
+}
+
+ul, ol {
+  list-style: none;
+}
+
+button {
+  font-family: var(--font-body);
+  cursor: pointer;
+  border: none;
+  outline: none;
+  background: none;
+  font-size: inherit;
+}
+
+input, textarea, select {
+  font-family: var(--font-body);
+  font-size: 14px;
+  outline: none;
+  border: none;
+}
+
+::selection {
+  background: var(--accent);
+  color: #FFFDEB;
+}
+
+/* --- Typography --- */
+.font-display {
+  font-family: var(--font-display);
+}
+
+h1, h2, h3 {
+  font-family: var(--font-display);
+  line-height: 1.2;
+  color: var(--text-primary);
+}
+
+h1 { font-size: 40px; }
+h2 { font-size: 28px; }
+h3 { font-size: 20px; }
+
+.text-sm { font-size: 12px; }
+.text-base { font-size: 14px; }
+.text-md { font-size: 16px; }
+.text-lg { font-size: 20px; }
+.text-xl { font-size: 28px; }
+.text-2xl { font-size: 40px; }
+
+.text-secondary { color: var(--text-secondary); }
+.text-tertiary { color: var(--text-tertiary); }
+.text-accent { color: var(--accent); }
+.text-success { color: var(--success); }
+.text-error { color: var(--error); }
+.text-warning { color: var(--warning); }
+
+.font-light { font-weight: 300; }
+.font-regular { font-weight: 400; }
+.font-medium { font-weight: 500; }
+.font-semibold { font-weight: 600; }
+.font-bold { font-weight: 700; }
+
+/* --- Buttons --- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 28px;
+  border-radius: var(--radius-full);
+  font-weight: 600;
+  font-size: 15px;
+  transition: var(--transition);
+  cursor: pointer;
+  white-space: nowrap;
+  line-height: 1;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: #FFFDEB;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+}
+
+.btn-primary:hover {
+  background: var(--accent-hover);
+  box-shadow: 0 4px 16px rgba(37, 99, 235, 0.4);
+  transform: translateY(-1px);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-secondary {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+}
+
+.btn-secondary:hover {
+  background: var(--bg-tertiary);
+  border-color: var(--text-tertiary);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text-secondary);
+}
+
+.btn-ghost:hover {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.btn-sm {
+  padding: 8px 16px;
+  font-size: 13px;
+}
+
+.btn-lg {
+  padding: 16px 36px;
+  font-size: 17px;
+}
+
+.btn-icon {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border-radius: var(--radius-md);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* --- Inputs --- */
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.input-group label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  letter-spacing: 0.02em;
+}
+
+.input-field {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-md);
+  font-size: 15px;
+  color: var(--text-primary);
+  background: var(--bg-primary);
+  transition: var(--transition);
+}
+
+.input-field::placeholder {
+  color: var(--text-tertiary);
+}
+
+.input-field:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.input-field.error {
+  border-color: var(--error);
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.input-error-msg {
+  font-size: 12px;
+  color: var(--error);
+  display: none;
+}
+
+.input-group.has-error .input-error-msg {
+  display: block;
+}
+
+.input-with-icon {
+  position: relative;
+}
+
+.input-with-icon .input-field {
+  padding-left: 44px;
+}
+
+.input-with-icon .input-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 18px;
+  pointer-events: none;
+}
+
+/* --- Cards --- */
+.card {
+  background: var(--bg-primary);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-sm);
+  padding: 24px;
+  transition: var(--transition);
+}
+
+.card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+/* --- Glass Effect --- */
+.glass {
+  background: rgba(255, 253, 235, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 253, 235, 0.3);
+}
+
+/* --- Chips / Tags --- */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  font-size: 13px;
+  font-weight: 500;
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  border: 1.5px solid var(--border);
+  cursor: pointer;
+  transition: var(--transition);
+  user-select: none;
+  white-space: nowrap;
+}
+
+.chip:hover {
+  background: var(--accent-light);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.chip.selected {
+  background: var(--accent);
+  color: #FFFDEB;
+  border-color: var(--accent);
+}
+
+.chip.selected::after {
+  content: '✓';
+  font-size: 11px;
+  margin-left: 2px;
+}
+
+.chip-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* --- Pill Buttons (Gender, etc.) --- */
+.pill-group {
+  display: flex;
+  gap: 8px;
+}
+
+.pill {
+  padding: 10px 24px;
+  border-radius: var(--radius-full);
+  font-size: 14px;
+  font-weight: 500;
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  border: 1.5px solid var(--border);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.pill:hover {
+  background: var(--accent-light);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.pill.selected {
+  background: var(--accent);
+  color: #FFFDEB;
+  border-color: var(--accent);
+}
+
+/* --- Category Tabs --- */
+.category-tabs {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: none;
+}
+
+.category-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.category-tab {
+  padding: 8px 16px;
+  border-radius: var(--radius-full);
+  font-size: 13px;
+  font-weight: 500;
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: var(--transition);
+  white-space: nowrap;
+}
+
+.category-tab:hover {
+  background: var(--accent-light);
+  color: var(--accent);
+}
+
+.category-tab.active {
+  background: var(--accent);
+  color: #FFFDEB;
+}
+
+/* --- Modal --- */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.25s ease;
+}
+
+.modal-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.modal {
+  background: var(--bg-primary);
+  border-radius: var(--radius-xl);
+  padding: 32px;
+  max-width: 480px;
+  width: 90%;
+  box-shadow: var(--shadow-lg);
+  transform: translateY(20px) scale(0.95);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.modal-overlay.active .modal {
+  transform: translateY(0) scale(1);
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.modal-close {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.modal-close:hover {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+/* --- Badges --- */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: var(--radius-full);
+  font-size: 11px;
+  font-weight: 700;
+  background: var(--error);
+  color: #FFFDEB;
+  line-height: 1;
+}
+
+/* --- Online Status Dot --- */
+.status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.status-dot.online {
+  background: var(--online);
+  box-shadow: 0 0 0 2px #FFFDEB, 0 0 8px rgba(34, 197, 94, 0.4);
+  animation: pulse-online 2s infinite;
+}
+
+.status-dot.offline {
+  background: var(--text-tertiary);
+  box-shadow: 0 0 0 2px #FFFDEB;
+}
+
+@keyframes pulse-online {
+  0%, 100% { box-shadow: 0 0 0 2px #FFFDEB, 0 0 8px rgba(34, 197, 94, 0.4); }
+  50% { box-shadow: 0 0 0 2px #FFFDEB, 0 0 16px rgba(34, 197, 94, 0.6); }
+}
+
+/* --- Star Rating --- */
+.star-rating {
+  display: inline-flex;
+  gap: 2px;
+}
+
+.star-rating .star {
+  font-size: 16px;
+  color: var(--border);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.star-rating .star.filled {
+  color: var(--warning);
+}
+
+/* --- Divider --- */
+.divider {
+  width: 100%;
+  height: 1px;
+  background: var(--border-light);
+  margin: 16px 0;
+}
+
+/* --- Scroll area --- */
+.scroll-area {
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+.scroll-area::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scroll-area::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scroll-area::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+
+.scroll-area::-webkit-scrollbar-thumb:hover {
+  background: var(--text-tertiary);
+}
+
+/* --- Avatar --- */
+.avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--border-light);
+  flex-shrink: 0;
+}
+
+.avatar-sm { width: 32px; height: 32px; }
+.avatar-md { width: 48px; height: 48px; }
+.avatar-lg { width: 80px; height: 80px; }
+.avatar-xl { width: 120px; height: 120px; }
+
+/* --- Tooltips --- */
+.globe-tooltip {
+  background: rgba(255, 253, 235, 0.95);
+  backdrop-filter: blur(12px);
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  min-width: 180px;
+  pointer-events: none;
+}
+
+.globe-tooltip .tooltip-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 8px;
+}
+
+.globe-tooltip .tooltip-name {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--text-primary);
+}
+
+.globe-tooltip .tooltip-job {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+/* --- Utility --- */
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.items-center { align-items: center; }
+.justify-center { justify-content: center; }
+.justify-between { justify-content: space-between; }
+.gap-4 { gap: 4px; }
+.gap-8 { gap: 8px; }
+.gap-12 { gap: 12px; }
+.gap-16 { gap: 16px; }
+.gap-24 { gap: 24px; }
+.w-full { width: 100%; }
+.text-center { text-align: center; }
+.hidden { display: none !important; }
+.relative { position: relative; }
+
+/* --- Transitions --- */
+.fade-in {
+  animation: fadeIn 0.3s ease forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* --- Social Icons Colors --- */
+.social-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  font-size: 18px;
+  transition: var(--transition);
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+}
+
+.social-icon:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+/* --- Toggle --- */
+.toggle {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  background: var(--border);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.toggle.active {
+  background: var(--accent);
+}
+
+.toggle::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #FFFDEB;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
+}
+
+.toggle.active::after {
+  transform: translateX(20px);
+}
+
+/* --- Range Slider --- */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none; /* Standard property for cross-browser compat */
+  width: 100%;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--border);
+  outline: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--accent);
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(37, 99, 235, 0.3);
+}
+
+/* --- Section Header --- */
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.section-header .section-emoji {
+  font-size: 20px;
+}
+
+.section-header .section-title {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* --- Notyf Overrides --- */
+.notyf__toast {
+  border-radius: var(--radius-md) !important;
+  font-family: var(--font-body) !important;
+  box-shadow: var(--shadow-md) !important;
+}
+
+/* --- Tom Select Overrides --- */
+.ts-wrapper .ts-control {
+  border: 1.5px solid var(--border) !important;
+  border-radius: var(--radius-md) !important;
+  padding: 10px 14px !important;
+  font-size: 15px !important;
+  font-family: var(--font-body) !important;
+  box-shadow: none !important;
+  transition: var(--transition) !important;
+  min-height: 44px !important;
+}
+
+.ts-wrapper .ts-control:focus,
+.ts-wrapper.focus .ts-control {
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1) !important;
+}
+
+.ts-wrapper .ts-dropdown {
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-md) !important;
+  box-shadow: var(--shadow-md) !important;
+  margin-top: 4px !important;
+}
+
+.ts-wrapper .ts-dropdown .option {
+  padding: 10px 14px !important;
+  font-size: 14px !important;
+  transition: var(--transition) !important;
+}
+
+.ts-wrapper .ts-dropdown .option:hover,
+.ts-wrapper .ts-dropdown .active {
+  background: var(--accent-light) !important;
+  color: var(--accent) !important;
+}
+
+/* --- Flatpickr Overrides --- */
+.flatpickr-calendar {
+  border-radius: var(--radius-lg) !important;
+  box-shadow: var(--shadow-lg) !important;
+  border: 1px solid var(--border) !important;
+  font-family: var(--font-body) !important;
+}
+
+.flatpickr-day.selected {
+  background: var(--accent) !important;
+  border-color: var(--accent) !important;
+}
+
+/* ===================================================
+   iOS 18 Emoji Rendering (Apple Color Emoji via CDN)
+   Replaces system emoji glyphs with Apple's emoji PNGs.
+   All img.apple-emoji elements are injected by emoji.js.
+   =================================================== */
+
+/* Base rule: all emoji images */
+img.apple-emoji {
+  display: inline-block;
+  height: 1.15em;
+  width: 1.15em;
+  margin: 0 0.05em 0 0.1em;
+  vertical-align: -0.2em;
+  pointer-events: none; /* Don't block clicks on parent buttons */
+  /* Force crisp rendering at all sizes */
+  image-rendering: auto;
+}
+
+/* --- Context-specific sizes --- */
+
+/* Welcome feature cards */
+.welcome-feature-emoji img.apple-emoji {
+  height: 2em;
+  width: 2em;
+  margin: 0;
+  vertical-align: middle;
+}
+
+/* Step header emoji (large centered icon per step) */
+.step-emoji img.apple-emoji {
+  height: 2.5em;
+  width: 2.5em;
+  margin: 0;
+  vertical-align: middle;
+}
+
+/* Photo upload zone icon */
+.upload-icon img.apple-emoji {
+  height: 2em;
+  width: 2em;
+  margin: 0;
+}
+
+/* Sidebar navigation items */
+.sidebar-nav-item img.apple-emoji {
+  height: 1.4em;
+  width: 1.4em;
+  margin: 0;
+  vertical-align: middle;
+}
+
+/* Section headers */
+.section-header .section-emoji img.apple-emoji {
+  height: 1.2em;
+  width: 1.2em;
+  vertical-align: -0.15em;
+}
+
+/* Social link icons in forms */
+.social-link-icon img.apple-emoji,
+.social-icon img.apple-emoji {
+  height: 1.15em;
+  width: 1.15em;
+  margin: 0;
+  vertical-align: middle;
+}
+
+/* Hobby cards */
+.hobby-emoji img.apple-emoji {
+  height: 1.4em;
+  width: 1.4em;
+  margin: 0;
+  vertical-align: middle;
+}
+
+/* Chip & pill components */
+.chip img.apple-emoji,
+.pill img.apple-emoji,
+.gender-pill img.apple-emoji {
+  height: 1em;
+  width: 1em;
+  margin-right: 3px;
+  vertical-align: -0.1em;
+}
+
+/* Globe tooltip */
+.globe-tooltip img.apple-emoji {
+  height: 1em;
+  width: 1em;
+  vertical-align: -0.1em;
+}
+
+/* Category filter tabs */
+.category-tab img.apple-emoji {
+  height: 1em;
+  width: 1em;
+  margin-right: 3px;
+  vertical-align: -0.1em;
+}
+
+/* Chat UI */
+.chat-emoji-btn img.apple-emoji {
+  height: 1.3em;
+  width: 1.3em;
+  vertical-align: middle;
+}
+
+.chat-sidebar-title img.apple-emoji {
+  height: 1.2em;
+  width: 1.2em;
+  vertical-align: -0.15em;
+}
+
+/* Profile card internals */
+.profile-card-section-label img.apple-emoji,
+.profile-section-title img.apple-emoji,
+.profile-header-name img.apple-emoji,
+.profile-card-name img.apple-emoji {
+  height: 1em;
+  width: 1em;
+  vertical-align: -0.1em;
+}
+
+/* Country flag in profile header — make it prominent */
+.profile-header-name img.apple-emoji.flag-emoji {
+  height: 1.2em;
+  width: 1.2em;
+}
+
+/* Flag emoji general */
+img.apple-emoji.flag-emoji {
+  border-radius: 2px;
+}
+
+/* Settings section titles */
+.settings-section-title img.apple-emoji {
+  height: 1em;
+  width: 1em;
+  vertical-align: -0.1em;
+}
+
+/* Tom Select dropdown options & selection */
+.ts-wrapper img.apple-emoji,
+.ts-dropdown img.apple-emoji {
+  height: 1.1em;
+  width: 1.1em;
+  vertical-align: -0.15em;
+  margin-right: 3px;
+}
+
+/* Status dropdown options */
+.status-option img.apple-emoji {
+  height: 1em;
+  width: 1em;
+  vertical-align: -0.1em;
+}
+
+/* Notyf toast notifications */
+.notyf img.apple-emoji {
+  height: 1em;
+  width: 1em;
+  vertical-align: -0.1em;
+}
+
+/* Buttons with emoji (general) */
+.btn img.apple-emoji,
+button img.apple-emoji {
+  height: 1em;
+  width: 1em;
+  vertical-align: -0.1em;
+}
+
+
