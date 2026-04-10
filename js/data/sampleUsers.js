@@ -1,10 +1,10 @@
-// Orbiit — Sample Users Data
-// Namespace: window.OrbiitData.sampleUsers
+// Ameple — Sample Users Data
+// Namespace: window.AmepleData.sampleUsers
 
 (function() {
-  window.OrbiitData = window.OrbiitData || {};
+  window.AmepleData = window.AmepleData || {};
 
-  window.OrbiitData.sampleUsers = [
+  window.AmepleData.sampleUsers = [
     // === ARAB COUNTRIES (18) ===
     {
       id: 'usr-jo-001', first_name: 'Omar', last_name: 'Haddad',
@@ -50,7 +50,7 @@
       skills: ['Digital Marketing', 'SEO', 'Personal Branding', 'Building Marketing Funnels'],
       hobbies: ['✈️ Traveling', '📚 Reading', '🧘 Yoga'],
       languages: [{ name: 'Arabic', flag: '🇸🇦', native: true }, { name: 'English', flag: '🇬🇧', native: false }, { name: 'French', flag: '🇫🇷', native: false }],
-      age: 29, gender: 'Female', is_online: false, last_seen: '2026-04-04T14:30:00Z',
+      age: 29, gender: 'Female', is_online: false, last_seen: new Date(Date.now() - 20 * 60000).toISOString(),
       average_rating: 4.6, total_ratings: 15, current_status: '📚 Studying',
       social_links: { linkedin: 'https://linkedin.com/in/fatimaalmansoori' }
     },
@@ -122,7 +122,7 @@
       skills: ['Personal Branding', 'Strategic Thinking', 'Persuasion', 'Creative Direction'],
       hobbies: ['✈️ Traveling', '🍽️ Restaurant Hopping', '📸 Photography'],
       languages: [{ name: 'Arabic', flag: '🇸🇦', native: true }, { name: 'English', flag: '🇬🇧', native: false }],
-      age: 31, gender: 'Female', is_online: false, last_seen: '2026-04-04T12:00:00Z',
+      age: 31, gender: 'Female', is_online: false, last_seen: new Date(Date.now() - 3 * 3600000).toISOString(),
       average_rating: 4.3, total_ratings: 9, current_status: '🍳 Cooking',
       social_links: { instagram: 'https://instagram.com/dana.brand' }
     },

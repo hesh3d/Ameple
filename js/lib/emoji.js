@@ -1,4 +1,4 @@
-// Orbiit — Apple iOS 18 Emoji System
+// Ameple — Apple iOS 18 Emoji System
 // Replaces ALL emoji characters with Apple Color Emoji PNG images.
 // CDN: emoji-datasource-apple (iamcal/emoji-data)
 
@@ -136,7 +136,7 @@
           var tag = p.tagName;
           // Skip: scripts, styles, inputs, already-processed nodes
           if (tag === 'SCRIPT' || tag === 'STYLE' || tag === 'TEXTAREA' ||
-              tag === 'INPUT' || tag === 'NOSCRIPT') {
+              tag === 'INPUT' || tag === 'NOSCRIPT' || p.isContentEditable) {
             return NodeFilter.FILTER_REJECT;
           }
           // Skip if parent is already an emoji img or a processed fallback
@@ -235,7 +235,7 @@
   });
 
   // ---- Public API ----
-  window.OrbiitEmoji = {
+  window.AmepleEmoji = {
     parse: parseElement,
 
     // Convert a single emoji string to an <img> HTML string

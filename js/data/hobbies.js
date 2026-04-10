@@ -1,10 +1,10 @@
-// Orbiit — Full Hobbies List
-// Namespace: window.OrbiitData.hobbies
+// Ameple — Full Hobbies List
+// Namespace: window.AmepleData.hobbies
 
 (function() {
-  window.OrbiitData = window.OrbiitData || {};
+  window.AmepleData = window.AmepleData || {};
 
-  window.OrbiitData.hobbies = [
+  window.AmepleData.hobbies = [
     // Sports ⚽
     { name: 'Football/Soccer', category: 'Sports', emoji: '⚽' },
     { name: 'Swimming', category: 'Sports', emoji: '🏊' },
@@ -119,5 +119,5 @@
   ];
 
   // Helper: Get all unique hobby categories
-  window.OrbiitData.hobbyCategories = [...new Set(window.OrbiitData.hobbies.map(h => h.category))];
+  window.AmepleData.hobbyCategories = [...new Set(window.AmepleData.hobbies.map(h => h.category))];
 })();

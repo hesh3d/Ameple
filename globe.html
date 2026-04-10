@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Orbiit — Explore the Globe</title>
-  <meta name="description" content="Explore professionals worldwide on Orbiit's interactive 3D globe. Connect with creatives, developers, and thinkers.">
+  <title>Ameple — Explore the Globe</title>
+  <meta name="description" content="Explore professionals worldwide on Ameple's interactive 3D globe. Connect with creatives, developers, and thinkers.">
 
   <!-- Notyf -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
@@ -14,8 +14,9 @@
   <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
 
-  <!-- Globe.gl -->
-  <script src="https://cdn.jsdelivr.net/npm/globe.gl@2.30.0/dist/globe.gl.min.js"></script>
+  <!-- MapLibre GL JS (100% Free, No Token Required) -->
+  <link href="https://unpkg.com/maplibre-gl@5.0.1/dist/maplibre-gl.css" rel="stylesheet" />
+  <script src="https://unpkg.com/maplibre-gl@5.0.1/dist/maplibre-gl.js"></script>
 
   <!-- Styles -->
   <link rel="stylesheet" href="css/main.css">
@@ -26,34 +27,55 @@
 
     <!-- Left Sidebar -->
     <nav class="left-sidebar">
-      <img src="assets/logo.svg" class="sidebar-logo" alt="Orbiit" onerror="this.style.display='none'">
-
-      <!-- Status Indicator -->
-      <div class="sidebar-status" id="sidebar-status">
-        <div class="sidebar-status-dot"></div>
+      <div class="sidebar-brand">
+        <img src="assets/logo.svg" class="sidebar-logo" alt="Ameple" onerror="this.style.display='none'">
+        <span class="brand-text">Ameple</span>
       </div>
 
       <!-- Navigation -->
       <div class="sidebar-nav">
-        <a href="globe.html" class="sidebar-nav-item active" title="Globe">🌍</a>
-        <a href="chat.html" class="sidebar-nav-item" title="Chats">💬</a>
-        <a href="#" class="sidebar-nav-item" title="Requests" id="nav-requests">
-          🔔
-          <span class="nav-badge" id="requests-badge" style="display:none">0</span>
+        <a href="globe.html" class="sidebar-nav-item active">
+          <span class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg></span>
+          <span class="nav-label">Globe</span>
         </a>
-        <a href="profile.html" class="sidebar-nav-item" title="Profile">👤</a>
-        <a href="settings.html" class="sidebar-nav-item" title="Settings">⚙️</a>
+        <a href="chat.html" class="sidebar-nav-item">
+          <span class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg></span>
+          <span class="nav-label">Messages</span>
+        </a>
+
+        <a href="profile.html" class="sidebar-nav-item">
+          <span class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></span>
+          <span class="nav-label">Profile</span>
+        </a>
+        <a href="settings.html" class="sidebar-nav-item">
+          <span class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></span>
+          <span class="nav-label">Settings</span>
+        </a>
       </div>
 
-      <!-- Bottom: User Avatar -->
+      <!-- Bottom: User Profile -->
       <div class="sidebar-bottom">
-        <img src="assets/default-avatar.svg" class="sidebar-avatar" id="sidebar-user-avatar" alt="You"
-             onerror="this.src='assets/default-avatar.svg'">
+        <div class="sidebar-user" id="sidebar-user-trigger">
+          <div class="sidebar-status-wrap">
+            <img src="assets/default-avatar.svg" class="sidebar-avatar" id="sidebar-user-avatar" alt="You" onerror="this.src='assets/default-avatar.svg'">
+            <div class="sidebar-status-dot" id="sidebar-status-dot"></div>
+          </div>
+          <div class="user-details">
+            <span class="user-name">My Status</span>
+            <span class="user-sub">Online</span>
+          </div>
+        </div>
       </div>
     </nav>
 
     <!-- Globe Area Wrapper -->
     <div class="globe-area">
+      <!-- Luxurious Space Background Elements -->
+      <div class="space-bg">
+        <div class="space-stars-1"></div>
+        <div class="space-stars-2"></div>
+      </div>
+
       <!-- Globe WebGL Target -->
       <div id="globe-container"></div>
 
@@ -69,13 +91,7 @@
         <!-- Filter Toggle -->
         <button class="filter-toggle" id="filter-toggle">⚙️ Filters</button>
 
-        <!-- Legend -->
-        <div class="globe-legend" id="globe-legend"></div>
 
-        <!-- User Count -->
-        <div class="globe-user-count" id="user-count">
-          <span class="count-num">0</span> people on the globe
-        </div>
       </div>
     </div>
 
@@ -108,6 +124,19 @@
         <p style="font-size:14px; color:var(--text-secondary); margin-bottom:16px;">
           Send a friendly ice-breaker message. Be genuine and specific about why you want to connect.
         </p>
+
+        <!-- Ice Breaker Chips (Small & Clear) -->
+        <div class="icebreaker-options" id="icebreaker-chips">
+          <div class="icebreaker-chip" data-msg="👋 Just saying hi">👋 Just saying hi</div>
+          <div class="icebreaker-chip" data-msg="🚀 Let's build something together">🚀 Let's build...</div>
+          <div class="icebreaker-chip" data-msg="💡 I have an idea to share">💡 I have an idea</div>
+          <div class="icebreaker-chip" data-msg="🎯 I'd love your advice">🎯 I'd love advice</div>
+          <div class="icebreaker-chip" data-msg="🤝 Open to collaborating">🤝 Collaborating</div>
+          <div class="icebreaker-chip" data-msg="🌍 Exploring new connections">🌍 Connections</div>
+          <div class="icebreaker-chip" data-msg="💼 I have a project for you">💼 Have a project</div>
+          <div class="icebreaker-chip" data-msg="✨ Your profile caught my eye">✨ Caught my eye</div>
+        </div>
+
         <textarea class="icebreaker-textarea" placeholder="Hi! I noticed we share similar interests in..." maxlength="300"></textarea>
         <div class="icebreaker-counter">0/300</div>
         <button class="btn btn-primary w-full btn-send-icebreaker" style="margin-top:16px;">Send Message 🚀</button>
@@ -121,10 +150,24 @@
   <script src="js/data/skills.js"></script>
   <script src="js/data/hobbies.js"></script>
   <script src="js/data/languages.js"></script>
-  <script src="js/data/sampleUsers.js"></script>
+  <script src="js/data/country-coords.js"></script>
+
   <script src="js/lib/supabase.js"></script>
   <script src="js/auth.js"></script>
-    <script src="js/lib/emoji.js"></script>
+  <script src="js/sidebar.js"></script>
+  <script src="js/lib/emoji.js"></script>
   <script src="js/globe.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", async () => {
+      if (window.AmepleEmoji) {
+        window.AmepleEmoji.parse(document.body, { className: 'apple-emoji' });
+      }
+
+      // OAuth redirect is now handled by initSession() in auth.js
+      // using the ameple_oauth_pending localStorage flag.
+      // This avoids the Supabase PKCE issue where URL params get stripped.
+    });
+  </script>
 </body>
 </html>
+

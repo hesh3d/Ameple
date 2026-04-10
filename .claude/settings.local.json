@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -s \"https://api.github.com/search/repositories?q=sf+pro+font+web&sort=stars&per_page=5\")",
+      "Bash(python3 -c \"import sys,json; data=json.load\\(sys.stdin\\); [print\\(f'{r[\\\\\"full_name\\\\\"]} \\({r[\\\\\"stargazers_count\\\\\"]}*\\): {r[\\\\\"html_url\\\\\"]}'\\) for r in data.get\\('items',[]\\)]\")",
+      "Bash(curl -s \"https://api.github.com/search/repositories?q=apple+emoji+images+png&sort=stars&per_page=5\")",
+      "Bash(curl -sI \"https://cdnjs.cloudflare.com/ajax/libs/emoji-datasource-apple/16.0.0/img/apple/64/1f600.png\")",
+      "WebFetch(domain:github.com)",
+      "Bash(curl -s \"https://nominatim.openstreetmap.org/search?q=Gaza%2C%20Palestine&format=json&limit=1\")",
+      "Bash(curl -s \"https://nominatim.openstreetmap.org/search?q=Gaza%20City%2C%20Palestine&format=json&limit=1\")",
+      "Bash(curl -s \"https://nominatim.openstreetmap.org/search?q=Gaza&format=json&limit=5\")",
+      "Bash(curl -s \"https://nominatim.openstreetmap.org/search?q=Gaza&format=json&limit=3\")",
+      "Bash(curl -s \"https://nominatim.openstreetmap.org/search?q=Gaza%2C%20Palestine&format=json&limit=1&accept-language=en\")"
+    ]
+  }
+}

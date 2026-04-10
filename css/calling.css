@@ -1,0 +1,257 @@
+/* ===================================================
+   Ameple — Calling Interface Styles (Neobrutalist)
+   Premium Cartoonish Aesthetic
+   =================================================== */
+
+.calling-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 12, 24, 0.85);
+  backdrop-filter: blur(25px);
+  z-index: 2000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 40px;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.calling-overlay.active {
+  display: flex;
+}
+
+.calling-container {
+  width: 95%;
+  max-width: 1400px;
+  height: 85vh;
+  max-height: 900px;
+  background: #FFFDF0;
+  border: 4px solid #1A1A2E;
+  border-radius: 48px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 30px 30px 0px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* --- Remote Video / Avatar --- */
+.calling-view-primary {
+  flex: 1;
+  position: relative;
+  background: #E5E7EB;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.calling-remote-avatar {
+  width: 240px;
+  height: 240px;
+  border-radius: 80px;
+  border: 8px solid #1A1A2E;
+  object-fit: cover;
+  box-shadow: 15px 15px 0px rgba(0, 0, 0, 0.15);
+}
+
+.calling-remote-avatar.ringing {
+  animation: pulse-ring 1.5s infinite;
+}
+
+@keyframes pulse-ring {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.4); }
+  70% { transform: scale(1); box-shadow: 0 0 0 20px rgba(37, 99, 235, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); }
+}
+
+.calling-status-text {
+  position: absolute;
+  top: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #FFF;
+  padding: 10px 24px;
+  border-radius: 20px;
+  border: 3px solid #1A1A2E;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  font-size: 14px;
+  color: #1A1A2E;
+  box-shadow: 4px 4px 0px #1A1A2E;
+  z-index: 10;
+}
+
+/* --- Local Video (PiP) --- */
+.calling-view-secondary {
+  position: absolute;
+  top: 30px;
+  right: 30px;
+  width: 240px;
+  height: 150px;
+  background: #1A1A2E;
+  border: 4px solid #FFF;
+  border-radius: 24px;
+  box-shadow: 12px 12px 0px rgba(0,0,0,0.3);
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 20;
+}
+
+.calling-view-secondary.expanded {
+  width: 400px;
+  height: 250px;
+  top: 30px;
+  right: 30px;
+}
+
+.calling-view-secondary:hover {
+  transform: scale(1.02);
+}
+
+.calling-local-video {
+  width: 100%;
+  height: 100%;
+  background: #374151; /* Placeholder */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* --- Controls --- */
+.calling-controls {
+  padding: 30px;
+  background: #FFF;
+  border-top: 4px solid #1A1A2E;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+}
+
+.control-btn {
+  width: 80px;
+  height: 80px;
+  border-radius: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: 4px solid #1A1A2E;
+  box-shadow: 6px 6px 0px #1A1A2E;
+  transition: all 0.15s ease-out;
+  background: #FFF;
+  color: #1A1A2E;
+  padding: 0;
+}
+
+.control-btn svg {
+  width: 32px;
+  height: 32px;
+}
+
+.control-btn:hover {
+  transform: translateY(-6px) translateX(-6px);
+  box-shadow: 12px 12px 0px #1A1A2E;
+}
+
+.control-btn:active {
+  transform: translateY(2px) translateX(2px);
+  box-shadow: 0px 0px 0px #1A1A2E;
+}
+
+#btn-call-mic,
+#btn-call-volume {
+  background: #10B981; /* Green = On */
+  color: #FFF;
+}
+
+#btn-call-mic.muted,
+#btn-call-volume.muted {
+  background: #EF4444; /* Red = Off */
+  color: #FFF;
+}
+
+#btn-call-video {
+  background: #EF4444; /* Default Red (Off) */
+  color: #FFF;
+}
+
+#btn-call-video.active {
+  background: #10B981; /* Green (On) */
+  color: #FFF;
+}
+
+.control-btn.btn-hangup {
+  background: #EF4444;
+  color: #FFF;
+  width: 110px;
+  border-radius: 32px;
+}
+
+.control-btn.btn-hangup svg {
+  width: 40px;
+  height: 40px;
+}
+
+.control-btn.btn-hangup:hover {
+  background: #DC2626;
+}
+
+/* --- Info & Timer --- */
+.calling-info {
+  position: absolute;
+  top: 100px;
+  left: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  pointer-events: none;
+  z-index: 15;
+}
+
+.calling-user-name {
+  font-size: 24px;
+  font-weight: 900;
+  color: #1A1A2E;
+  background: #FFF;
+  padding: 8px 20px;
+  border: 3px solid #1A1A2E;
+  border-radius: 16px;
+  box-shadow: 4px 4px 0px #1A1A2E;
+  width: fit-content;
+}
+
+.calling-timer {
+  font-size: 16px;
+  font-weight: 800;
+  color: #FFF;
+  background: #2563EB;
+  padding: 6px 16px;
+  border: 3px solid #1A1A2E;
+  border-radius: 12px;
+  box-shadow: 4px 4px 0px #1A1A2E;
+  width: fit-content;
+  font-family: 'Courier New', Courier, monospace;
+}
+
+
+
+/* --- Animations --- */
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes pulse-call {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.calling-remote-avatar.ringing {
+  animation: pulse-call 1.5s infinite ease-in-out;
+}

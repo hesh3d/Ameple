@@ -1,10 +1,10 @@
-// Orbiit — World Languages List
-// Namespace: window.OrbiitData.languages
+// Ameple — World Languages List
+// Namespace: window.AmepleData.languages
 
 (function() {
-  window.OrbiitData = window.OrbiitData || {};
+  window.AmepleData = window.AmepleData || {};
 
-  window.OrbiitData.languages = [
+  window.AmepleData.languages = [
     { name: 'Arabic', flag: '🇸🇦' },
     { name: 'English', flag: '🇬🇧' },
     { name: 'French', flag: '🇫🇷' },

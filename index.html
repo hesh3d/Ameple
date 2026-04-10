@@ -4,13 +4,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Orbiit â€” Find Your People</title>
+  <title>Ameple — Find Your People</title>
   <meta name="description"
-    content="Orbiit connects professionals, creatives, and learners through an interactive 3D globe. Find your people anywhere in the world.">
+    content="Ameple connects professionals, creatives, and learners through an interactive 3D globe. Find your people anywhere in the world.">
 
   <!-- Notyf -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
   <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
+
+  <!-- Iconify for reliable SVG loading -->
+  <script src="https://code.iconify.design/iconify-icon/2.0.0/iconify-icon.min.js"></script>
 
   <!-- Flatpickr -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
@@ -25,133 +28,61 @@
 
   <style>
     /* ================================================================
-       ORBIIT — Onboarding Design System v5.0
-       Apple iOS · Notion · Linear
+       AMEPLE — Onboarding Design System v6.0
+       Notion & Linear Inspired (Neobrutalism & Clean)
+       Light, Illustrative, Bold, Clear, Luxurious
     ================================================================ */
 
-    /* —— CSS Variables —— */
     :root {
-      --bg: #000000;
-      --bg-2: rgba(40, 40, 40, 0.4);
-      --bg-3: rgba(60, 60, 60, 0.3);
-      --text: #ffffff;
-      --text-2: #eeeeee;
-      --text-3: #a0a0a0;
-      --text-4: #888888;
-      --accent: #0A84FF;
-      --accent-bg: rgba(10, 132, 255, 0.15);
-      --border: rgba(255, 255, 255, 0.12);
-      --border-2: rgba(255, 255, 255, 0.08);
-      --err: #FF453A;
-      --ok: #32D74B;
-      --shadow-card: 0 40px 100px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.15);
-      --shadow-sm: 0 8px 32px rgba(0, 0, 0, 0.4);
-      --font: 'SF Pro Text', 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      --font-d: 'SF Pro Display', 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --bg: #F9F8F6;
+      /* Warm off-white */
+      --bg-2: #FFFFFF;
+      --text: #111111;
+      --text-2: #333333;
+      --text-3: #666666;
+      --text-4: #999999;
+      --accent: #0066FF;
+      /* Crisp Premium Blue */
+      --accent-bg: #EAF3FC;
+      --border: #E5E2DC;
+      --border-dark: #1A1A1A;
+
+      --font: 'Segoe UI', 'SF Pro Text', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-d: 'Segoe UI', 'SF Pro Display', 'SF Pro Text', -apple-system, BlinkMacSystemFont, sans-serif;
+
       --ease: cubic-bezier(0.25, 0.1, 0.25, 1);
-      --ease-in: cubic-bezier(0.4, 0, 1, 1);
-      --ease-out: cubic-bezier(0.0, 0.0, 0.2, 1);
       --spring: cubic-bezier(0.175, 0.885, 0.32, 1.2);
-      --r-sm: 12px;
-      --r-md: 16px;
-      --r-lg: 20px;
-      --r-xl: 32px;
+
+      --r-sm: 8px;
+      --r-md: 12px;
+      --r-lg: 16px;
+      --r-xl: 24px;
       --r-pill: 100px;
     }
 
     /* —— Reset —— */
-    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-
-    html {
-      font-size: 16px;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-    }
-
-    body {
-      font-family: var(--font);
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow-x: hidden;
-    }
-
-    .ambient-bg {
-      position: fixed;
-      top: 0; left: 0; width: 100vw; height: 100vh;
-      z-index: -1;
-      background: radial-gradient(circle at 15% 50%, rgba(10, 132, 255, 0.25), transparent 50%),
-                  radial-gradient(circle at 85% 30%, rgba(94, 92, 230, 0.25), transparent 50%),
-                  radial-gradient(circle at 50% 80%, rgba(191, 90, 242, 0.2), transparent 50%);
-      filter: blur(80px);
-      animation: pulseBg 14s ease-in-out infinite alternate;
-    }
-
-    @keyframes pulseBg {
-      0% { transform: scale(1) translate(0, 0); }
-      50% { transform: scale(1.05) translate(2%, 2%); }
-      100% { transform: scale(1.1) translate(-2%, -2%); }
-    }
-
-    button { cursor: pointer; font-family: var(--font); border: none; outline: none; }
-    input, select, textarea { font-family: var(--font); outline: none; }
-    a { text-decoration: none; color: inherit; }
-
-
-    /* ================================================================
-       ORBIIT — Onboarding Design System v5.0
-       Apple iOS · Notion · Linear
-    ================================================================ */
-
-    /* —— CSS Variables —— */
-    :root {
-      --bg: #000000;
-      --bg-2: rgba(40, 40, 40, 0.4);
-      --bg-3: rgba(60, 60, 60, 0.3);
-      --text: #ffffff;
-      --text-2: #eeeeee;
-      --text-3: #a0a0a0;
-      --text-4: #888888;
-      --accent: #0A84FF;
-      --accent-bg: rgba(10, 132, 255, 0.15);
-      --border: rgba(255, 255, 255, 0.12);
-      --border-2: rgba(255, 255, 255, 0.08);
-      --err: #FF453A;
-      --ok: #32D74B;
-      --shadow-card: 0 40px 100px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.15);
-      --shadow-sm: 0 8px 32px rgba(0, 0, 0, 0.4);
-      --font: 'SF Pro Text', 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      --font-d: 'SF Pro Display', 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      --ease: cubic-bezier(0.25, 0.1, 0.25, 1);
-      --ease-in: cubic-bezier(0.4, 0, 1, 1);
-      --ease-out: cubic-bezier(0.0, 0.0, 0.2, 1);
-      --spring: cubic-bezier(0.175, 0.885, 0.32, 1.2);
-      --r-sm: 12px;
-      --r-md: 16px;
-      --r-lg: 20px;
-      --r-xl: 32px;
-      --r-pill: 100px;
-    }
-
-    /* —— Reset —— */
-    *, *::before, *::after {
+    *,
+    *::before,
+    *::after {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
+      font-family: inherit;
     }
 
     html {
       font-size: 16px;
       -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
     }
 
     body {
       font-family: var(--font);
       background: var(--bg);
+      /* Subtle grid background for the Notion/Gigs illustrative feel */
+      background-image:
+        linear-gradient(rgba(0, 0, 0, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 0, 0, 0.03) 1px, transparent 1px);
+      background-size: 32px 32px;
       color: var(--text);
       min-height: 100vh;
       display: flex;
@@ -160,21 +91,9 @@
       overflow-x: hidden;
     }
 
+    /* Hide the old animated glowing orbs entirely */
     .ambient-bg {
-      position: fixed;
-      top: 0; left: 0; width: 100vw; height: 100vh;
-      z-index: -1;
-      background: radial-gradient(circle at 15% 50%, rgba(10, 132, 255, 0.25), transparent 50%),
-                  radial-gradient(circle at 85% 30%, rgba(94, 92, 230, 0.25), transparent 50%),
-                  radial-gradient(circle at 50% 80%, rgba(191, 90, 242, 0.2), transparent 50%);
-      filter: blur(80px);
-      animation: pulseBg 14s ease-in-out infinite alternate;
-    }
-
-    @keyframes pulseBg {
-      0% { transform: scale(1) translate(0, 0); }
-      50% { transform: scale(1.05) translate(2%, 2%); }
-      100% { transform: scale(1.1) translate(-2%, -2%); }
+      display: none !important;
     }
 
     button {
@@ -182,11 +101,15 @@
       font-family: var(--font);
       border: none;
       outline: none;
+      background: transparent;
     }
 
-    input, select, textarea {
+    input,
+    select,
+    textarea {
       font-family: var(--font);
       outline: none;
+      -webkit-font-smoothing: antialiased;
     }
 
     a {
@@ -195,39 +118,36 @@
     }
 
     /* ================================================================
-       GLOBAL EMOJI SYSTEM — Apple Color Emoji via CDN
+       GLOBAL EMOJI SYSTEM — Apple Color Emoji
     ================================================================ */
-
-    img.apple-emoji {
+    img.apple-emoji,
+    img.emoji {
       display: inline-block !important;
       vertical-align: -0.15em !important;
       width: 1em !important;
       height: 1em !important;
       margin: 0 2px !important;
-      border: none !important;
-      box-shadow: none !important;
       object-fit: contain;
     }
 
-    .step-emoji img.apple-emoji {
-      width: 52px !important;
-      height: 52px !important;
-      vertical-align: middle !important;
+    .step-emoji img.apple-emoji,
+    .step-emoji img.emoji {
+      width: 48px !important;
+      height: 48px !important;
       margin: 0 !important;
     }
 
     .pill img.apple-emoji,
     .chip img.apple-emoji,
     .category-tab img.apple-emoji,
-    .welcome-feature img.apple-emoji,
     .hobby-card img.apple-emoji,
     .social-link-icon img.apple-emoji,
     .btn-secondary img.apple-emoji,
     .gender-pill img.apple-emoji {
       width: 20px !important;
       height: 20px !important;
-      vertical-align: middle !important;
       margin: 0 !important;
+      vertical-align: middle !important;
     }
 
     .ts-wrapper img.apple-emoji,
@@ -235,219 +155,13 @@
     .ts-dropdown img.apple-emoji {
       width: 20px !important;
       height: 20px !important;
-      vertical-align: middle !important;
       margin-right: 8px !important;
-      margin-left: 0 !important;
-    }
-
-    .upload-icon img.apple-emoji {
-      width: 32px !important;
-      height: 32px !important;
       vertical-align: middle !important;
-      margin: 0 !important;
-    }
-
-    .password-toggle img.apple-emoji {
-      width: 18px !important;
-      height: 18px !important;
-      vertical-align: middle !important;
-      margin: 0 !important;
-    }
-
-    .hobby-card.selected img.apple-emoji {
-      filter: brightness(10);
-    }
-
-    /* Legacy .emoji class support */
-    img.emoji {
-      display: inline-block !important;
-      vertical-align: -0.15em !important;
-      width: 1em !important;
-      height: 1em !important;
-      margin: 0 2px !important;
-      border: none !important;
-      box-shadow: none !important;
-      object-fit: contain;
-    }
-
-        /* ================================================================
-       CRITICAL FIX #2 — (kept for structure, CSS above replaces logic)
-    ================================================================ */
-
-    img.emoji {
-      display: inline-block !important;
-      vertical-align: -0.15em !important;
-      width: 1em !important;
-      height: 1em !important;
-      margin: 0 2px !important;
-      border: none !important;
-      box-shadow: none !important;
-      object-fit: contain;
-    }
-
-    /* Step hero emoji — large icon at top of each step */
-    .step-emoji img.emoji {
-      width: 52px !important;
-      height: 52px !important;
-      vertical-align: middle !important;
-      margin: 0 !important;
-    }
-
-    /* Pill / chip / tab / welcome-feature — inline small */
-    .pill img.emoji,
-    .chip img.emoji,
-    .category-tab img.emoji,
-    .welcome-feature img.emoji,
-    .hobby-card img.emoji,
-    .social-link-icon img.emoji,
-    .btn-secondary img.emoji,
-    .gender-pill img.emoji {
-      width: 20px !important;
-      height: 20px !important;
-      vertical-align: middle !important;
-      margin: 0 !important;
-    }
-
-    /* TomSelect — flag + job icon in dropdowns */
-    .ts-wrapper img.emoji,
-    .ts-control img.emoji,
-    .ts-dropdown img.emoji {
-      width: 20px !important;
-      height: 20px !important;
-      vertical-align: middle !important;
-      margin-right: 8px !important;
-      margin-left: 0 !important;
-    }
-
-    /* Upload zone camera icon */
-    .upload-icon img.emoji {
-      width: 32px !important;
-      height: 32px !important;
-      vertical-align: middle !important;
-      margin: 0 !important;
-    }
-
-    /* Password toggle eye */
-    .password-toggle img.emoji {
-      width: 18px !important;
-      height: 18px !important;
-      vertical-align: middle !important;
-      margin: 0 !important;
-    }
-
-    /* Selected hobby card — make emoji visible on dark bg */
-    .hobby-card.selected img.emoji {
-      filter: brightness(10);
     }
 
     /* ================================================================
-       CRITICAL FIX #1 â€” SLIDE + BLUR + FADE ANIMATION SYSTEM
+       CONTAINER & PROGRESS
     ================================================================ */
-
-    @keyframes enterFwd {
-      from {
-        opacity: 0;
-        transform: translateX(40px);
-        filter: blur(8px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateX(0);
-        filter: blur(0px);
-      }
-    }
-
-    @keyframes exitFwd {
-      from {
-        opacity: 1;
-        transform: translateX(0);
-        filter: blur(0px);
-      }
-
-      to {
-        opacity: 0;
-        transform: translateX(-40px);
-        filter: blur(8px);
-      }
-    }
-
-    @keyframes enterBack {
-      from {
-        opacity: 0;
-        transform: translateX(-40px);
-        filter: blur(8px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateX(0);
-        filter: blur(0px);
-      }
-    }
-
-    @keyframes exitBack {
-      from {
-        opacity: 1;
-        transform: translateX(0);
-        filter: blur(0px);
-      }
-
-      to {
-        opacity: 0;
-        transform: translateX(40px);
-        filter: blur(8px);
-      }
-    }
-
-    @keyframes staggerIn {
-      from {
-        opacity: 0;
-        transform: translateY(14px);
-        filter: blur(4px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-        filter: blur(0px);
-      }
-    }
-
-    @keyframes shake {
-
-      0%,
-      100% {
-        transform: translateX(0);
-      }
-
-      25% {
-        transform: translateX(-4px);
-      }
-
-      75% {
-        transform: translateX(4px);
-      }
-    }
-
-    @keyframes dotPop {
-      0% {
-        transform: scale(1);
-      }
-
-      50% {
-        transform: scale(1.6);
-      }
-
-      100% {
-        transform: scale(1.3);
-      }
-    }
-
-    /* ================================================================
-       OUTER PAGE â€” centres the card
-    ================================================================ */
-
     #onboarding-container {
       width: 100%;
       min-height: 100vh;
@@ -455,25 +169,15 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 32px 16px;
+      padding: 40px 20px;
     }
-
-    #progress-bar,
-    #progress-fill {
-      display: none;
-    }
-
-    /* ================================================================
-       CRITICAL FIX #7 â€” PROGRESS DOTS
-    ================================================================ */
 
     #progress-dots-wrapper {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 10px;
-      margin-bottom: 24px;
-      opacity: 1;
+      gap: 12px;
+      margin-bottom: 32px;
       transition: opacity 0.3s var(--ease);
     }
 
@@ -484,86 +188,106 @@
 
     #progress-dots {
       display: flex;
-      gap: 6px;
+      gap: 8px;
       align-items: center;
     }
 
     .pdot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: #e0e0e0;
-      transition: all 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+      width: 24px;
+      height: 4px;
+      border-radius: 2px;
+      background: #E5E2DC;
+      transition: all 300ms var(--spring);
     }
 
     .pdot.done {
-      background: var(--text);
+      background: var(--text-3);
     }
 
     .pdot.now {
       background: var(--accent);
-      transform: scale(1.4);
-      box-shadow: 0 0 0 3px rgba(26, 86, 219, 0.15);
+      width: 36px;
+      animation: pdot-activate 500ms var(--spring);
+    }
+
+    @keyframes pdot-activate {
+      0% {
+        transform: scale(0.7);
+      }
+
+      50% {
+        transform: scale(1.15);
+      }
+
+      100% {
+        transform: scale(1);
+      }
     }
 
     #step-label {
       font-size: 12px;
+      font-weight: 700;
       color: var(--text-4);
-      font-weight: 400;
-      letter-spacing: 0.01em;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      transition: all 0.3s var(--ease);
     }
 
     /* ================================================================
-       CRITICAL FIX #4 â€” CARD LAYOUT & SPACING
+       MAIN CARD — NEUTRAL LUXURY BRUTALISM
     ================================================================ */
-
     #steps-wrapper {
       width: 100%;
-      max-width: 680px;
-      background: rgba(30, 30, 30, 0.6);
-      backdrop-filter: blur(40px);
-      -webkit-backdrop-filter: blur(40px);
-      border: 1px solid var(--border-2);
-      border-radius: 36px;
-      box-shadow: var(--shadow-card);
-      overflow: clip;
+      max-width: 720px;
+      background: var(--bg-2);
+      border: 2px solid var(--border-dark);
+      border-radius: var(--r-xl);
+      box-shadow: 8px 8px 0px rgba(0, 0, 0, 0.06);
+      overflow: visible;
+      /* Changed from clip to allow dropdowns to overlay footer */
       display: flex;
       flex-direction: column;
-      transition: max-width 400ms var(--spring);
-    }
-
-    /* Card content area â€” adapts to each step's height */
-    .card-body {
-      padding: 48px 44px 32px;
       position: relative;
     }
 
-    /* Steps 8 & 9 have selection grids — their padding is
-       managed by .card-body's standard padding (no override needed) */
-
-    /* Card footer â€” nav buttons always inside card */
-    .card-footer {
-      padding: 20px 44px 36px;
-      border-top: 1px solid var(--border-2);
+    .card-body {
+      padding: 48px 48px 32px;
+      min-height: 480px;
       display: flex;
-      justify-content: space-between;
       align-items: center;
+      justify-content: center;
     }
 
-    @media (max-width: 560px) {
+    .card-footer {
+      padding: 24px 48px 36px;
+      border-top: 2px solid var(--border-dark);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+      background: #FAFAFA;
+      flex-wrap: wrap;
+      border-radius: 0 0 calc(var(--r-xl) - 2px) calc(var(--r-xl) - 2px);
+    }
+
+    @media (max-width: 600px) {
       .card-body {
-        padding: 36px 24px 24px;
+        padding: 40px 24px 20px;
+        min-height: auto;
       }
 
       .card-footer {
-        padding: 16px 24px 28px;
+        padding: 20px 24px 32px;
+      }
+
+      #steps-wrapper {
+        box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.06);
       }
     }
 
     /* ================================================================
-       STEPS â€” Display & Animation
+       STEPS ANIMATION
     ================================================================ */
-
     .step {
       display: none;
       flex-direction: column;
@@ -573,1120 +297,1852 @@
 
     .step.active {
       display: flex;
-      animation: enterFwd 420ms cubic-bezier(0.0, 0.0, 0.2, 1) both;
+      animation: slideIn 400ms var(--spring) forwards;
     }
 
-    .step.exit-fwd {
-      display: flex !important;
-      animation: exitFwd 240ms cubic-bezier(0.4, 0, 1, 1) both;
-      pointer-events: none;
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
-    .step.exit-back {
-      display: flex !important;
-      animation: exitBack 240ms cubic-bezier(0.4, 0, 1, 1) both;
-      pointer-events: none;
-    }
-
-    .step.enter-back.active {
-      animation: enterBack 420ms cubic-bezier(0.0, 0.0, 0.2, 1) both;
-    }
-
-    /* Stagger delays for children */
+    /* Staggered Content Animation */
     .step.active .s0 {
-      animation: staggerIn 400ms ease both;
+      animation: sFadeIn 600ms var(--spring) forwards;
       animation-delay: 0ms;
+      opacity: 0;
     }
 
     .step.active .s1 {
-      animation: staggerIn 400ms ease both;
-      animation-delay: 70ms;
+      animation: sFadeIn 600ms var(--spring) forwards;
+      animation-delay: 80ms;
+      opacity: 0;
     }
 
     .step.active .s2 {
-      animation: staggerIn 400ms ease both;
-      animation-delay: 140ms;
+      animation: sFadeIn 600ms var(--spring) forwards;
+      animation-delay: 160ms;
+      opacity: 0;
     }
 
     .step.active .s3 {
-      animation: staggerIn 400ms ease both;
-      animation-delay: 210ms;
+      animation: sFadeIn 600ms var(--spring) forwards;
+      animation-delay: 240ms;
+      opacity: 0;
     }
 
-    /* ================================================================
-       STEP TYPOGRAPHY
-    ================================================================ */
+    @keyframes sFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(15px) scale(0.98);
+      }
 
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .step.exit {
+      display: flex;
+      animation: slideOut 250ms var(--ease) forwards;
+    }
+
+    @keyframes slideOut {
+      to {
+        opacity: 0;
+        transform: translateY(-15px) scale(0.98);
+      }
+    }
+
+    /* Typography inside steps */
     .step-num {
-      font-size: 11px;
-      font-weight: 500;
-      color: var(--text-4);
-      letter-spacing: 0.07em;
-      text-transform: uppercase;
-      margin-bottom: 16px;
-      align-self: center;
+      display: none;
+    }
+
+    /* Hidden, Using dots */
+
+    /* Emojis are framed like GIGS icons */
+    .job-card-emoji,
+    .job-card-visual {
+      font-size: 32px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 40px;
+      width: 100%;
     }
 
     .step-emoji {
-      font-size: 52px;
-      line-height: 1;
-      text-align: center;
-      margin-bottom: 20px;
+      font-size: 48px;
+      margin-bottom: 24px;
+      width: 88px;
+      height: 88px;
+      background: var(--bg);
+      border: 2px solid var(--border-dark);
+      box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.05);
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
-
-    .step-title {
-      font-family: var(--font-d);
-      font-size: 26px;
-      font-weight: 700;
-      color: var(--text);
-      text-align: center;
-      letter-spacing: -0.025em;
-      line-height: 1.2;
-      margin-bottom: 10px;
-    }
-
-    .step-sub {
-      font-size: 14px;
-      color: var(--text-3);
-      text-align: center;
-      line-height: 1.65;
-      margin-bottom: 28px;
-      max-width: 360px;
-    }
-
-    /* ================================================================
-       WELCOME SCREEN (Step 1)
-    ================================================================ */
 
     .welcome-logo {
-      height: 32px;
-      width: auto;
-      margin-bottom: 28px;
+      width: 56px;
+      height: 56px;
+      margin-bottom: 24px;
+      filter: grayscale(1) contrast(1.5);
     }
 
-    .welcome-logo-text {
-      font-family: var(--font-d);
-      font-size: 22px;
-      font-weight: 700;
-      letter-spacing: -0.04em;
-      margin-bottom: 28px;
-    }
-
-    .welcome-title {
+    .welcome-title,
+    .step-title,
+    .completion-title {
       font-family: var(--font-d);
       font-size: 32px;
-      font-weight: 700;
+      font-weight: 800;
+      color: var(--text);
       text-align: center;
-      line-height: 1.15;
-      letter-spacing: -0.03em;
-      margin-bottom: 14px;
+      letter-spacing: -0.04em;
+      margin-bottom: 12px;
+      line-height: 1.2;
     }
 
-    .welcome-description {
-      font-size: 15px;
-      color: #666;
+    .welcome-description,
+    .step-sub {
+      font-size: 16px;
+      color: var(--text-3);
       text-align: center;
-      line-height: 1.65;
-      margin-bottom: 28px;
-      max-width: 360px;
-    }
-
-    .welcome-features {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      justify-content: center;
-      align-items: center;
-      margin-bottom: 32px;
-    }
-
-    .welcome-feature {
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      background: var(--bg-3);
-      border-radius: var(--r-pill);
-      padding: 8px 14px;
-      font-size: 13px;
+      line-height: 1.5;
+      margin-bottom: 40px;
       font-weight: 500;
-      color: var(--text-2);
-      white-space: nowrap;
+      max-width: 500px;
+      font-family: var(--font);
     }
 
     /* ================================================================
-       CRITICAL FIX #5 â€” INPUT FIELDS
+       FORMS & LAYOUTS
     ================================================================ */
-
     .step-form {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      width: 100%;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 16px;
+    }
+
+    @media (max-width: 500px) {
+      .input-row {
+        flex-direction: column;
+      }
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex: 1;
+      width: 100%;
+    }
+
+    .input-group label {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-2);
+    }
+
+    /* DOB Grid & Labels */
+    .dob-grid {
+      display: flex;
+      gap: 12px;
+      width: 100%;
+    }
+
+    .dob-item {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      flex: 1;
+    }
+
+    .dob-item.month {
+      flex: 2;
+    }
+
+    .dob-label {
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--text-3);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-left: 4px;
+    }
+
+    /* Input Fields */
+    .input-field,
+    .password-wrapper input {
+      width: 100%;
+      padding: 14px 16px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-md);
+      font-size: 16px;
+      font-weight: 600;
+      background: #FAFAFA;
+      color: var(--text);
+      transition: all 200ms ease;
+    }
+
+    .input-field:focus {
+      border-color: var(--text);
+      background: #FFF;
+      box-shadow: 0 0 0 4px rgba(17, 17, 17, 0.06);
+    }
+
+    .password-wrapper {
+      position: relative;
+    }
+
+    .password-toggle {
+      position: absolute;
+      right: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 18px;
+      color: var(--text-4);
+    }
+
+    /* Custom Select (TomSelect) */
+    .ts-wrapper .ts-control {
+      border: 1.5px solid var(--border) !important;
+      border-radius: var(--r-md) !important;
+      padding: 14px 16px !important;
+      background: #FAFAFA !important;
+      box-shadow: none !important;
+      font-weight: 600 !important;
+      font-size: 16px !important;
+      min-height: 52px !important;
+      display: flex !important;
+      align-items: center !important;
+      font-family: var(--font) !important;
+    }
+
+    .ts-wrapper.focus .ts-control {
+      border-color: var(--text) !important;
+      background: #FFF !important;
+      box-shadow: 0 0 0 4px rgba(17, 17, 17, 0.06) !important;
+    }
+
+    .ts-dropdown {
+      border: 1.5px solid var(--border-dark);
+      border-radius: var(--r-md);
+      box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.06);
+      background: #FFF;
+      font-weight: 600;
+      padding: 8px 0;
+      z-index: 1000 !important;
+      font-family: var(--font) !important;
+      /* Ensure it stays on top */
+    }
+
+    .ts-dropdown .option {
+      padding: 12px 16px;
+    }
+
+    .ts-dropdown .option:hover,
+    .ts-dropdown .option.active {
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    /* Inherit native behavior but visually hide input when an item is selected */
+    .ts-wrapper.single .ts-control .item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .ts-wrapper.single.has-items .ts-control>input {
+      opacity: 0 !important;
+      width: 0 !important;
+      min-width: 0 !important;
+      height: 0 !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      border: none !important;
+      caret-color: transparent !important;
+    }
+
+    /* Additional Language Select - Styling to look like an "Add" button */
+    #select-additional-langs+.ts-wrapper {
+      position: relative;
+      width: 100%;
+    }
+
+    #select-additional-langs+.ts-wrapper .ts-control {
+      cursor: pointer !important;
+      position: relative;
+      padding: 5px 16px !important;
+      padding-right: 48px !important;
+      min-height: 48px !important;
+      /* Prevents collapsing when empty */
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      transition: all 0.3s var(--ease);
+    }
+
+    /* Native select usually results in ~48px height, matching that exactly now */
+
+    /* '+' button — SVG background guarantees pixel-perfect centering */
+    #select-additional-langs+.ts-wrapper::after {
+      content: '';
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 32px;
+      height: 32px;
+      background-color: #FFF;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231A1A1A' stroke-width='2' stroke-linecap='round'%3E%3Cline x1='12' y1='4' x2='12' y2='20'/%3E%3Cline x1='4' y1='12' x2='20' y2='12'/%3E%3C/svg%3E");
+      background-size: 16px 16px;
+      background-position: center;
+      background-repeat: no-repeat;
+      border: 1.5px solid var(--border-dark);
+      border-radius: 8px;
+      pointer-events: none;
+      transition: transform 0.3s var(--spring), background-color 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.05);
+      z-index: 5;
+    }
+
+    #select-additional-langs+.ts-wrapper.focus::after {
+      transform: translateY(-50%) rotate(45deg);
+      background-color: var(--text);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FFFFFF' stroke-width='2' stroke-linecap='round'%3E%3Cline x1='12' y1='4' x2='12' y2='20'/%3E%3Cline x1='4' y1='12' x2='20' y2='12'/%3E%3C/svg%3E");
+      box-shadow: none;
+    }
+
+    /* Hide '+' button when max 5 languages reached (TomSelect adds .full) */
+    #select-additional-langs+.ts-wrapper.full::after {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    /* Hide the typing cursor in the multi-select too */
+    #select-additional-langs+.ts-wrapper .ts-control>input {
+      caret-color: transparent !important;
+      width: 2px !important;
+      opacity: 0 !important;
+      position: absolute;
+      left: -9999px;
+      /* Move it far away so it doesn't interfere with the layout */
+    }
+
+    /* Make sure pills look good next to each other - FLAGS ONLY MODE */
+    #select-additional-langs+.ts-wrapper .ts-control .item {
+      margin: 2px 4px;
+      padding: 0 !important;
+      background: #FFF;
+      border: 1.5px solid var(--border-dark);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 34px;
+      height: 34px;
+      box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.05);
+      transition: all 0.2s var(--spring);
+      overflow: hidden;
+      font-size: 0 !important;
+    }
+
+    #select-additional-langs+.ts-wrapper .ts-control .item img.apple-emoji,
+    #select-additional-langs+.ts-wrapper .ts-control .item img.emoji {
+      width: 20px !important;
+      height: 20px !important;
+      margin: 0 !important;
+    }
+
+    #select-additional-langs+.ts-wrapper .ts-control .item:hover {
+      transform: scale(1.05);
+      box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.08);
+      border-color: var(--accent);
+    }
+
+    #select-additional-langs+.ts-wrapper .ts-control .item .remove {
+      display: none !important;
+      /* Hide remove icon - click flag to remove or use dropdown */
+    }
+
+    /* ================================================================
+       PILLS & SELECTION CARDS
+    ================================================================ */
+    .pill-group {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      width: 100%;
+    }
+
+    .pill-group.grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 14px 24px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-md);
+      background: #FAFAFA;
+      font-weight: 700;
+      font-size: 15px;
+      color: var(--text-2);
+      transition: all 200ms;
+      min-width: 120px;
+    }
+
+    .pill-group.grid-2 .pill {
+      min-width: 0;
+      width: 100%;
+    }
+
+    .pill:hover {
+      border-color: var(--border-dark);
+      transform: translateY(-2px);
+      box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.05);
+    }
+
+    .pill.selected {
+      background: var(--accent-bg);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* Age Display Styling (Simple) */
+    .age-display {
+      margin-top: 12px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-3);
+    }
+
+    #select-additional-langs+.ts-wrapper.has-items .ts-control>input::placeholder {
+      color: transparent !important;
+    }
+
+    #select-additional-langs+.ts-wrapper .ts-control {
+      cursor: pointer !important;
+    }
+
+    /* Luxurious Emoji Confetti */
+    @keyframes emojiPopIn {
+      0% {
+        transform: translate(-50%, -50%) scale(0) rotate(0deg);
+        opacity: 0;
+      }
+
+      40% {
+        transform: translate(-50%, -50%) scale(1.4) rotate(var(--r-half));
+        opacity: 1;
+      }
+
+      60% {
+        transform: translate(-50%, -50%) scale(0.9) rotate(calc(var(--r-half)*1.2));
+        opacity: 1;
+      }
+
+      100% {
+        transform: translate(-50%, -50%) scale(1.1) rotate(var(--r-end));
+        opacity: 1;
+      }
+    }
+
+    @keyframes emojiDrift {
+      0% {
+        transform: translate(calc(-50% + 0px), calc(-50% + 0px)) scale(1.1);
+        opacity: 1;
+      }
+
+      70% {
+        opacity: 1;
+      }
+
+      100% {
+        transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty))) scale(0.6);
+        opacity: 0;
+      }
+    }
+
+    .luxurious-emoji {
+      position: fixed;
+      pointer-events: none;
+      z-index: 9999;
+      font-size: var(--em-size, 34px);
+      will-change: transform, opacity;
+      filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.18));
+    }
+
+    .luxurious-emoji.phase-in {
+      animation: emojiPopIn 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    .luxurious-emoji.phase-drift {
+      animation: emojiDrift var(--drift-dur, 1.6s) cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .selection-container {
       width: 100%;
       display: flex;
       flex-direction: column;
       gap: 16px;
     }
 
-    .input-row {
-      display: flex;
+    .selection-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
       gap: 12px;
     }
 
-    .input-row>* {
-      flex: 1;
+    @media (max-width: 500px) {
+      .selection-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
     }
 
-    .input-group {
+    .hobby-card,
+    .job-item,
+    .skill-item {
+      background: #FFF;
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-md);
+      padding: 16px;
       display: flex;
       flex-direction: column;
-      gap: 7px;
-    }
-
-    .input-group label {
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--text-4);
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-    }
-
-    .input-field {
-      width: 100%;
-      height: 56px;
-      padding: 0 20px;
-      border: 1.5px solid var(--border-2);
-      border-radius: var(--r-md);
-      font-size: 16px;
-      font-family: var(--font);
-      color: var(--text);
-      background: var(--bg-2);
-      transition: all 220ms cubic-bezier(0.4, 0, 0.2, 1);
-      -webkit-appearance: none;
-      appearance: none;
-    }
-
-    .input-field::placeholder {
-      color: var(--text-4);
-    }
-
-    .input-field:focus {
-      border-color: var(--accent);
-      background: var(--bg-3);
-      box-shadow: 0 0 0 4px rgba(26, 86, 219, 0.08);
-      outline: none;
-    }
-
-    .input-field.error {
-      border-color: var(--err);
-      box-shadow: 0 0 0 4px rgba(255, 59, 48, 0.09);
-      animation: shake 0.35s var(--ease);
-    }
-
-    textarea.input-field {
-      height: auto;
-      min-height: 96px;
-      padding: 14px 18px;
-      resize: vertical;
-      line-height: 1.5;
-    }
-
-    /* Password */
-    .password-wrapper {
-      position: relative;
-    }
-
-    .password-wrapper .input-field {
-      padding-right: 50px;
-    }
-
-    .password-toggle {
-      position: absolute;
-      right: 14px;
-      top: 50%;
-      transform: translateY(-50%);
-      background: none;
-      border: none;
-      font-size: 18px;
+      align-items: center;
+      gap: 8px;
       cursor: pointer;
-      color: var(--text-4);
-      padding: 4px;
-      transition: color 150ms;
-      line-height: 1;
-    }
-
-    .password-toggle:hover {
+      transition: all 200ms ease;
+      font-weight: 700;
       color: var(--text-2);
-    }
-
-    /* Age display */
-    .age-display {
-      padding: 10px 16px;
-      border-radius: var(--r-md);
-      background: var(--accent-bg);
-      color: var(--accent);
-      font-weight: 600;
       font-size: 14px;
       text-align: center;
     }
 
-    /* Location confirmation */
-    .location-confirmation {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 11px 16px;
-      border-radius: var(--r-md);
-      background: rgba(52, 199, 89, 0.08);
-      border: 1px solid rgba(52, 199, 89, 0.2);
-      font-size: 13px;
-      color: var(--ok);
-      font-weight: 500;
+    .hobby-card:hover,
+    .job-item:hover,
+    .skill-item:hover {
+      border-color: var(--border-dark);
+      box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.05);
+      transform: translateY(-2px);
     }
 
-    /* ================================================================
-       PILLS â€” Gender & general selections
-    ================================================================ */
-
-    .pill-group {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
+    .hobby-card.selected,
+    .job-item.selected,
+    .skill-item.selected {
+      border-color: var(--accent);
+      background: var(--accent-bg);
+      color: var(--accent);
     }
 
-    .pill,
-    .chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      padding: 10px 18px;
-      border-radius: var(--r-pill);
-      border: 1.5px solid var(--border-2);
-      background: var(--bg-2);
-      font-size: 14px;
-      font-weight: 500;
-      color: var(--text-2);
-      cursor: pointer;
-      transition: all 160ms cubic-bezier(0.34, 1.56, 0.64, 1);
-      user-select: none;
-      white-space: nowrap;
+    .hobby-card img.apple-emoji {
+      width: 32px !important;
+      height: 32px !important;
+      margin-bottom: 4px !important;
     }
 
-    .pill:hover:not(.selected),
-    .chip:hover:not(.selected) {
-      border-color: rgba(255, 255, 255, 0.4);
-      background: var(--bg-3);
-      transform: translateY(-1px);
-    }
-
-    .pill.selected,
-    .chip.selected {
-      background: var(--text);
-      border-color: var(--text);
-      color: #000;
-      transform: scale(1.03);
-    }
-
-    .pill:active,
-    .chip:active {
-      transform: scale(0.97);
-    }
-
-    /* ================================================================
-       CRITICAL FIX #3 â€” SKILLS & HOBBIES SELECTION
-    ================================================================ */
-
-    .selection-container {
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .selection-search .input-field {
-      height: 44px;
-      font-size: 14px;
-    }
-
-    /* Category tabs */
+    /* Tabs */
     .selection-tabs {
       display: flex;
+      gap: 12px;
       overflow-x: auto;
+      padding: 12px 10px 20px;
+      justify-content: center;
+      /* Center horizontally for balance */
       scrollbar-width: none;
-      border-bottom: 1px solid var(--border-2);
-      gap: 0;
-      position: relative;
+      -webkit-overflow-scrolling: touch;
     }
 
     .selection-tabs::-webkit-scrollbar {
       display: none;
     }
 
-    /* Fade hint on right edge â€” suggests more tabs */
-    .selection-tabs::after {
-      content: '';
-      position: sticky;
-      right: 0;
-      top: 0;
-      width: 40px;
-      height: 100%;
-      flex-shrink: 0;
-      background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.95));
-      pointer-events: none;
-    }
-
     .category-tab {
       padding: 8px 16px;
+      border-radius: var(--r-pill);
+      background: #F0F0F0;
+      color: #555;
+      font-weight: 500;
       font-size: 13px;
-      font-weight: 400;
-      color: #999;
-      cursor: pointer;
-      border: none;
-      background: none;
-      border-bottom: 2px solid transparent;
       white-space: nowrap;
-      transition: all 200ms ease;
-      flex-shrink: 0;
-      font-family: var(--font);
+      cursor: pointer;
+      transition: all 200ms;
+      border: none;
     }
 
     .category-tab:hover {
-      color: var(--text-2);
+      background: #E0E0E0;
     }
 
     .category-tab.active {
-      color: var(--text);
-      font-weight: 700;
-      border-bottom-color: var(--text);
+      background: #111;
+      color: #FFF;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
 
-    /* â”€â”€ SKILLS GRID â€” pill/chip layout â”€â”€ */
-    #skills-grid.selection-grid {
+    /* ================================================================
+       JOB BROWSER (Step 7)
+    ================================================================ */
+    .job-browser {
       display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      max-height: 260px;
-      overflow-y: auto;
-      padding: 4px 2px;
-      scrollbar-width: thin;
-      scrollbar-color: #e0e0e0 transparent;
+      flex-direction: column;
+      gap: 0;
+      width: 100%;
     }
 
-    #skills-grid .chip {
-      padding: 9px 16px;
-      border-radius: 100px;
-      border: 1.5px solid var(--border-2);
-      background: var(--bg-2);
-      font-size: 14px;
-      font-weight: 500;
-      color: var(--text-2);
-      cursor: pointer;
-      transition: all 160ms cubic-bezier(0.34, 1.56, 0.64, 1);
-      white-space: nowrap;
+    .job-cat-tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+      padding: 4px 0 16px;
+    }
+
+    .job-cat-tab {
       display: inline-flex;
       align-items: center;
-      gap: 7px;
-      user-select: none;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: 100px;
+      border: 1.5px solid var(--border);
+      background: #FAFAFA;
+      color: var(--text-2);
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 180ms ease;
+      white-space: nowrap;
     }
 
-    #skills-grid .chip:hover:not(.selected) {
-      border-color: rgba(255, 255, 255, 0.4);
-      background: var(--bg-3);
-      transform: translateY(-1px);
+    .job-cat-tab:hover {
+      border-color: var(--border-dark);
+      background: #F0F0F0;
     }
 
-    #skills-grid .chip.selected {
-      background: var(--text);
-      border-color: #0a0a0a;
-      color: #000;
-      transform: scale(1.03);
+    .job-cat-tab.active {
+      background: #111;
+      color: #FFF;
+      border-color: #111;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
     }
 
-    #skills-grid .chip:active {
-      transform: scale(0.97);
-    }
-
-    /* â”€â”€ HOBBIES GRID â€” card layout â”€â”€ */
-    #hobbies-grid.selection-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
-      max-height: 280px;
-      overflow-y: auto;
-      padding: 4px 2px;
-      scrollbar-width: thin;
-      scrollbar-color: #e0e0e0 transparent;
-    }
-
-    /* Fallback for other .selection-grid usages */
-    .selection-grid {
+    .job-cards-grid {
       display: flex;
       flex-wrap: wrap;
-      gap: 8px;
-      max-height: 260px;
+      justify-content: center;
+      gap: 10px;
+      max-height: 320px;
       overflow-y: auto;
-      padding: 4px 2px;
+      padding: 2px 2px 2px 2px;
       scrollbar-width: thin;
-      scrollbar-color: #e0e0e0 transparent;
+      scrollbar-color: #DDD transparent;
+      animation: gridFadeIn 220ms ease;
     }
 
-    .selection-grid::-webkit-scrollbar {
-      width: 4px;
-    }
-
-    .selection-grid::-webkit-scrollbar-thumb {
-      background: #e0e0e0;
-      border-radius: 2px;
-    }
-
-    /* Counter */
-    .selection-counter {
-      font-size: 12px;
-      color: var(--text-4);
-      text-align: center;
-    }
-
-    .selection-counter .count {
-      font-weight: 700;
-      color: var(--accent);
-    }
-
-    /* Hobby cards */
-    .hobby-card {
+    .job-card {
+      background: #FFF;
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-md);
+      padding: 14px 10px;
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 6px;
-      padding: 14px 10px;
-      border-radius: 14px;
-      border: 1.5px solid var(--border-2);
-      background: var(--bg-2);
       cursor: pointer;
-      transition: all 160ms cubic-bezier(0.34, 1.56, 0.64, 1);
+      transition: all 180ms ease;
       text-align: center;
-      user-select: none;
+      width: calc(33.33% - 7px);
+      /* Fixed width to mimic 3-column grid */
+      min-width: 140px;
     }
 
-    .hobby-card:hover:not(.selected) {
-      background: var(--bg-3);
-      border-color: rgba(255, 255, 255, 0.4);
+    @media (max-width: 600px) {
+      .job-card {
+        width: calc(50% - 5px);
+        /* Mimic 2-column grid on mobile */
+      }
+    }
+
+    .job-card:hover {
+      border-color: var(--border-dark);
       transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.07);
+      box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.06);
     }
 
-    .hobby-card.selected {
-      background: var(--text);
-      border-color: var(--text);
-      color: #000;
-      transform: scale(1.04);
+    .job-card.selected {
+      border-color: var(--accent);
+      background: var(--accent-bg);
+      transform: translateY(-2px);
+      box-shadow: 0 0 0 3px rgba(17, 17, 17, 0.07);
     }
 
-    .hobby-card .hobby-emoji {
+    .job-card-emoji {
       font-size: 26px;
       line-height: 1;
     }
 
-    .hobby-card .hobby-name {
+    .job-card-title {
       font-size: 12px;
-      font-weight: 500;
+      font-weight: 700;
+      color: var(--text);
       line-height: 1.3;
-      text-align: center;
     }
 
-    /* ================================================================
-       PHOTO UPLOAD (Step 6)
-    ================================================================ */
-
-    .upload-zone {
-      width: 130px;
-      height: 130px;
-      border-radius: 50%;
-      border: 2px dashed #d0d0d0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: all 200ms var(--ease);
-      position: relative;
-      overflow: hidden;
-      align-self: center;
-      margin-bottom: 10px;
-      background: var(--bg-2);
-    }
-
-    .upload-zone:hover {
-      border-color: var(--accent);
-      background: rgba(26, 86, 219, 0.04);
-    }
-
-    .upload-zone.dragover {
-      border-color: var(--accent);
-      background: rgba(26, 86, 219, 0.08);
-      transform: scale(1.03);
-    }
-
-    .upload-zone.has-image {
-      border-style: solid;
-      border-color: transparent;
-    }
-
-    .upload-icon {
-      font-size: 32px;
-      line-height: 1;
-      margin-bottom: 6px;
-    }
-
-    .upload-text {
-      font-size: 12px;
-      color: var(--text-4);
-      font-weight: 500;
-    }
-
-    .upload-hint {
-      display: none;
-    }
-
-    .upload-preview {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      border-radius: 50%;
-    }
-
-    .upload-edit-btn {
-      position: absolute;
-      bottom: 4px;
-      right: 4px;
-      width: 28px;
-      height: 28px;
-      background: var(--bg-3);
-      border-radius: 50%;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      font-size: 14px;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-      border: 1.5px solid var(--border);
-    }
-
-    .upload-zone.has-image .upload-edit-btn {
-      display: flex;
-    }
-
-    .upload-zone.has-image .upload-icon,
-    .upload-zone.has-image .upload-text {
-      display: none;
-    }
-
-    .upload-input {
-      display: none;
-    }
-
-    /* ================================================================
-       SOCIAL LINKS (Step 11)
-    ================================================================ */
-
-    .social-links-list {
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .social-link-row {
+    .job-selected-bar {
       display: flex;
       align-items: center;
-      height: 52px;
-      gap: 12px;
-      padding: 0 4px;
-      border-bottom: 1px solid var(--border-2);
-      border-left: 3px solid transparent;
-      transition: transform 200ms var(--ease), border-left-color 200ms var(--ease);
-      position: relative;
-    }
-
-    .social-link-row:last-child {
-      border-bottom: none;
-    }
-
-    .social-link-row:focus-within {
-      transform: translateX(3px);
-    }
-
-    .social-link-row:focus-within[data-platform="instagram"] {
-      border-left-color: #E1306C;
-    }
-
-    .social-link-row:focus-within[data-platform="linkedin"] {
-      border-left-color: #0A66C2;
-    }
-
-    .social-link-row:focus-within[data-platform="twitter"] {
-      border-left-color: #000;
-    }
-
-    .social-link-row:focus-within[data-platform="youtube"] {
-      border-left-color: #FF0000;
-    }
-
-    .social-link-row:focus-within[data-platform="tiktok"] {
-      border-left-color: #000;
-    }
-
-    .social-link-row:focus-within[data-platform="facebook"] {
-      border-left-color: #1877F2;
-    }
-
-    .social-link-row:focus-within[data-platform="discord"] {
-      border-left-color: #5865F2;
-    }
-
-    .social-link-row:focus-within[data-platform="snapchat"] {
-      border-left-color: #FFFC00;
-    }
-
-    .social-link-row:focus-within[data-platform="whatsapp"] {
-      border-left-color: #25D366;
-    }
-
-    .social-link-icon {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 18px;
-      flex-shrink: 0;
-      background: var(--bg-3);
-      overflow: hidden;
-    }
-
-    .social-link-row[data-platform="instagram"] .social-link-icon {
-      background: rgba(225, 48, 108, 0.10);
-    }
-
-    .social-link-row[data-platform="linkedin"] .social-link-icon {
-      background: rgba(10, 102, 194, 0.10);
-    }
-
-    .social-link-row[data-platform="youtube"] .social-link-icon {
-      background: rgba(255, 0, 0, 0.10);
-    }
-
-    .social-link-row[data-platform="facebook"] .social-link-icon {
-      background: rgba(24, 119, 242, 0.10);
-    }
-
-    .social-link-row[data-platform="discord"] .social-link-icon {
-      background: rgba(88, 101, 242, 0.10);
-    }
-
-    .social-link-row[data-platform="snapchat"] .social-link-icon {
-      background: rgba(255, 252, 0, 0.15);
-    }
-
-    .social-link-row[data-platform="whatsapp"] .social-link-icon {
-      background: rgba(37, 211, 102, 0.10);
-    }
-
-    .social-input.input-field {
-      border: none !important;
-      box-shadow: none !important;
-      background: transparent !important;
-      height: 44px;
-      padding: 0 8px;
-      font-size: 14px;
-      flex: 1;
-    }
-
-    /* ================================================================
-       COMPLETION (Step 12)
-    ================================================================ */
-
-    .completion-title {
-      font-family: var(--font-d);
-      font-size: 28px;
-      font-weight: 700;
-      text-align: center;
-      letter-spacing: -0.02em;
-      margin-bottom: 8px;
-    }
-
-    .completion-subtitle {
-      font-size: 15px;
-      color: var(--text-3);
-      text-align: center;
-      margin-bottom: 24px;
-    }
-
-    .preview-card {
-      width: 100%;
-      max-width: 320px;
-      background: var(--bg-2);
-      border: 1px solid var(--border-2);
-      border-radius: 20px;
-      padding: 28px 24px;
-      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-      margin-bottom: 20px;
-    }
-
-    .preview-avatar {
-      width: 84px;
-      height: 84px;
-      border-radius: 50%;
-      object-fit: cover;
-      margin-bottom: 14px;
-      border: 2px solid var(--border-2);
-    }
-
-    .preview-name {
-      font-family: var(--font-d);
-      font-size: 20px;
-      font-weight: 700;
-      margin-bottom: 4px;
-      letter-spacing: -0.02em;
-    }
-
-    .preview-job {
-      font-size: 14px;
-      color: var(--text-3);
-      margin-bottom: 14px;
-    }
-
-    .preview-chips {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 5px;
-      justify-content: center;
-    }
-
-    .preview-chip {
-      padding: 4px 12px;
-      border-radius: var(--r-pill);
-      font-size: 12px;
-      font-weight: 500;
-      background: var(--bg-3);
-      color: var(--text-2);
-    }
-
-    /* ================================================================
-       SKIP LINK
-    ================================================================ */
-
-    .skip-link {
-      display: block;
-      text-align: center;
-      font-size: 13px;
-      color: var(--text-4);
-      cursor: pointer;
+      justify-content: space-between;
+      background: #F0FDF4;
+      border: 1.5px solid #86EFAC;
+      border-radius: var(--r-md);
+      padding: 14px 18px;
       margin-top: 12px;
-      transition: color 150ms;
+      animation: gridFadeIn 200ms ease;
     }
 
-    .skip-link:hover {
-      color: var(--text-2);
-      text-decoration: underline;
+    #job-selected-label {
+      font-size: 15px;
+      font-weight: 700;
+      color: #166534;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
-    /* ================================================================
-       CRITICAL FIX #6 â€” BUTTONS
-    ================================================================ */
+    .job-clear-btn {
+      background: none;
+      border: 1.5px solid #86EFAC;
+      border-radius: 100px;
+      padding: 6px 14px;
+      font-weight: 700;
+      font-size: 12px;
+      color: #166534;
+      cursor: pointer;
+      transition: all 180ms;
+    }
 
-    /* Primary â€” welcome Get Started */
-    .btn-primary {
-      display: inline-flex;
+    .job-clear-btn:hover {
+      background: #DCFCE7;
+    }
+
+    .selection-counter {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-3);
+      text-align: right;
+      margin-top: 16px;
+    }
+
+    /* Accordion Styles */
+    .skills-accordion {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      width: 100%;
+    }
+
+    .accordion-item {
+      width: 100%;
+      background: #FFF;
+      border: 1px solid #EBEBEB;
+      border-radius: 12px;
+      overflow: hidden;
+      transition: all 280ms ease-in-out;
+    }
+
+    .accordion-header {
+      width: 100%;
+      height: 80px;
+      /* Even bigger as requested */
+      padding: 0 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      background: #FFF;
+      transition: all 250ms ease;
+    }
+
+    .accordion-header:hover {
+      background: #FAFAFA;
+      border-color: #D0D0D0;
+    }
+
+    .accordion-item.active {
+      border-color: var(--cat-color, #6C63FF);
+      background: #FFF;
+    }
+
+    .accordion-title {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-size: 16px;
+      /* Bigger font */
+      font-weight: 700;
+      color: #1A1A1A;
+      text-transform: capitalize;
+    }
+
+    .accordion-chevron {
+      font-size: 14px;
+      color: #999;
+      transition: transform 250ms ease;
+    }
+
+    .accordion-item.active .accordion-chevron {
+      transform: rotate(90deg);
+    }
+
+    .accordion-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 280ms ease-in-out;
+      background: #FFF;
+    }
+
+    .accordion-item.active .accordion-content {
+      max-height: 2000px;
+      /* Large enough to fit cards */
+    }
+
+    .skills-grid-inner {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      padding: 16px 4px;
+    }
+
+    @media (max-width: 600px) {
+      .skills-grid-inner {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    /* Skill Cards Redesign */
+    .skill-card {
+      position: relative;
+      background: #FFF;
+      border-radius: 14px;
+      padding: 24px 16px;
+      display: flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
-      height: 56px;
-      padding: 0 32px;
-      background: var(--text);
-      color: #000;
-      border-radius: var(--r-pill);
-      font-family: var(--font);
-      font-size: 16px;
-      font-weight: 600;
-      border: none;
+      text-align: center;
       cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
       transition: all 180ms ease;
-      white-space: nowrap;
+      min-height: 100px;
+      /* Taller */
+      opacity: 0;
+      transform: translateY(8px);
+    }
+
+    .accordion-item.active .skill-card {
+      animation: cardFadeIn 400ms forwards;
+    }
+
+    @keyframes cardFadeIn {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .skill-card:hover {
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+      transform: translateY(-2px);
+    }
+
+    .skill-card-text {
+      font-size: 15px;
+      /* Bigger font */
+      font-weight: 700;
+      color: #1A1A1A;
+      line-height: 1.4;
+    }
+
+    .card-accent {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      border-radius: 4px 0 0 4px;
+      background: var(--cat-color);
+      opacity: 0.3;
+      transition: opacity 180ms ease;
+    }
+
+    .skill-card:hover .card-accent,
+    .skill-card.selected .card-accent {
+      opacity: 1;
+    }
+
+    .skill-card.selected {
+      background: var(--cat-color-bg);
+      border: 1.5px solid var(--cat-color);
+    }
+
+    .card-check {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 18px;
+      color: var(--cat-color);
+      display: none;
+    }
+
+    .skill-card.selected .card-check {
+      display: block;
+    }
+
+    /* Search Bar Polish */
+    #skills-search {
+      border-radius: 12px;
+      border: 1.5px solid #E5E5E5;
+      padding: 14px 18px;
+      transition: all 200ms ease;
+    }
+
+    #skills-search:focus {
+      border-color: #6C63FF;
+      box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.1);
+    }
+
+    #skills-search::placeholder {
+      color: #AAAAAA;
+    }
+
+    .btn-primary {
+      background: var(--text);
+      color: #FFF;
+      font-weight: 800;
+      font-size: 16px;
+      letter-spacing: 0.02em;
+      padding: 18px 40px;
+      border-radius: var(--r-pill);
+      transition: all 300ms var(--spring);
+      width: fit-content;
+      border: 2px solid var(--border-dark);
+      box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.06);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin: 0 auto;
     }
 
     .btn-primary:hover {
-      background: rgba(255,255,255,0.85);
-      transform: translateY(-1px);
-      box-shadow: var(--shadow-sm);
+      transform: translateY(-2px);
+      box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.15);
     }
 
     .btn-primary:active {
-      transform: translateY(0) scale(0.98);
-      box-shadow: none;
+      transform: translateY(0);
+      box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.06);
     }
 
-    .btn-primary.full {
-      width: 100%;
-      justify-content: center;
-    }
-
-    .btn-arrow {
-      display: inline-block;
-      transition: transform 180ms ease;
-    }
-
-    .btn-primary:hover .btn-arrow,
-    #btn-next:hover .btn-arrow {
-      transform: translateX(4px);
-    }
-
-    /* Back button */
-    #btn-back {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      background: none;
-      border: none;
-      color: var(--text-4);
-      font-size: 14px;
-      font-weight: 400;
-      padding: 8px 12px;
-      border-radius: 10px;
-      cursor: pointer;
-      font-family: var(--font);
-      transition: color 150ms, background 150ms;
-    }
-
-    #btn-back:hover {
-      color: var(--text);
-      background: var(--bg-3);
-    }
-
-    #btn-back.hidden {
-      visibility: hidden;
-      pointer-events: none;
-    }
-
-    /* Next / Continue button */
-    #btn-next {
-      display: none;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      height: 56px;
-      padding: 0 36px;
-      background: var(--text);
-      color: #000;
-      border-radius: var(--r-pill);
-      font-family: var(--font);
-      font-size: 16px;
-      font-weight: 600;
-      border: none;
-      cursor: pointer;
-      transition: all 180ms ease;
-      white-space: nowrap;
-    }
-
-    #btn-next:hover {
-      background: rgba(255,255,255,0.85);
-      transform: translateY(-1px);
-      box-shadow: var(--shadow-sm);
-    }
-
-    #btn-next:active {
-      transform: translateY(0) scale(0.98);
-      box-shadow: none;
-    }
-
-    /* Secondary (Use My Location, etc.) */
     .btn-secondary {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      height: 48px;
-      padding: 0 20px;
-      background: var(--bg-3);
-      color: var(--text-2);
-      border-radius: var(--r-md);
-      font-family: var(--font);
-      font-size: 14px;
-      font-weight: 500;
-      border: none;
-      cursor: pointer;
-      width: 100%;
-      transition: all 150ms var(--ease);
+      background: #FFF;
+      color: var(--text);
+      font-weight: 700;
+      font-size: 15px;
+      padding: 14px 20px;
+      border: 1.5px solid var(--border-dark);
+      border-radius: var(--r-pill);
+      transition: all 200ms ease;
+      box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.05);
     }
 
     .btn-secondary:hover {
-      background: rgba(255,255,255,0.12);
-      color: var(--text);
+      background: var(--bg);
+      transform: translateY(-1px);
+      box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.05);
     }
-
-    .btn-secondary:active {
-      transform: scale(0.99);
-    }
-
-    /* ================================================================
-       TOM SELECT â€” Overrides (keep emoji-safe height)
-    ================================================================ */
-
-    .ts-wrapper .ts-control {
-      flex-wrap: nowrap !important;
-      transition: border-color 220ms ease, box-shadow 220ms ease, background 220ms ease !important;
-    }
-
-    .ts-wrapper .ts-control .item {
-      display: inline-flex !important;
-      align-items: center !important;
-      gap: 8px !important;
-      font-size: 15px !important;
-      max-width: 100% !important;
-      overflow: hidden !important;
-      text-overflow: ellipsis !important;
-      white-space: nowrap !important;
-    }
-
-    .ts-wrapper.focus .ts-control {
-      border-color: var(--accent) !important;
-      background: rgba(40,40,40,0.95) !important;
-      box-shadow: 0 0 0 4px rgba(26, 86, 219, 0.08) !important;
-    }
-
-    .ts-wrapper .ts-dropdown {
-      border: 1px solid var(--border) !important;
-      border-radius: var(--r-lg) !important;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12) !important;
-      margin-top: 6px !important;
-      font-family: var(--font) !important;
-    }
-
-    .ts-wrapper .ts-dropdown .option {
-      padding: 10px 18px !important;
-      font-size: 14px !important;
-      display: flex !important;
-      align-items: center !important;
-      gap: 8px !important;
-      line-height: 1.4 !important;
-      cursor: pointer !important;
-    }
-
-    .ts-wrapper .ts-dropdown .option:hover,
-    .ts-wrapper .ts-dropdown .option.active {
-      background: var(--bg-3) !important;
-      color: var(--text) !important;
-    }
-
-    /* ================================================================
-       FLATPICKR â€” Overrides
-    ================================================================ */
-
-    .flatpickr-calendar {
-      border-radius: var(--r-xl) !important;
-      box-shadow: 0 8px 40px rgba(0, 0, 0, 0.12) !important;
-      border: 1px solid var(--border) !important;
-      font-family: var(--font) !important;
-    }
-
-    .flatpickr-day.selected,
-    .flatpickr-day.selected:hover {
-      background: var(--text) !important;
-      border-color: var(--text) !important;
-    }
-
-    /* ================================================================
-       NOTYF â€” Overrides
-    ================================================================ */
-
-    .notyf__toast {
-      border-radius: var(--r-md) !important;
-      font-family: var(--font) !important;
-      font-size: 14px !important;
-    }
-
-    /* ================================================================
-       UTILITIES
-    ================================================================ */
 
     .w-full {
       width: 100%;
+    }
+
+    .upload-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      z-index: 3;
+      color: #FFF;
+      font-weight: 700;
+      font-size: 14px;
+      backdrop-filter: blur(8px);
+      text-align: center;
+      padding: 10px;
+    }
+
+    .upload-zone:hover .upload-overlay {
+      opacity: 1;
+    }
+
+    .upload-icon-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+    }
+
+    .upload-icon {
+      font-size: 48px;
+      margin-bottom: 12px;
+      line-height: 1;
+    }
+
+    .upload-zone.has-image .upload-icon-box {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .btn-upload-custom {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: #FFF;
+      border: 2px solid var(--border-dark);
+      padding: 14px 28px;
+      border-radius: var(--r-pill);
+      font-weight: 800;
+      font-size: 15px;
+      color: var(--text);
+      cursor: pointer;
+      transition: all 300ms var(--spring);
+      box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.06);
+      margin: 0 auto;
+    }
+
+    .btn-upload-custom:hover {
+      background: var(--bg);
+      transform: translateY(-2px);
+      box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.08);
+    }
+
+    .btn-upload-custom:active {
+      transform: translateY(0);
+      box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.06);
+    }
+
+    .btn-upload-custom i {
+      font-style: normal;
+      font-size: 20px;
+    }
+
+    .upload-edit-btn {
+      display: none;
+    }
+
+    .input-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      width: 100%;
+    }
+
+    #btn-back,
+    #btn-next {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-weight: 800;
+      font-size: 16px;
+      padding: 18px 32px;
+      border: 2px solid var(--border-dark);
+      border-radius: var(--r-pill);
+      transition: all 300ms var(--spring);
+      cursor: pointer;
+      box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.06);
+    }
+
+    #btn-back {
+      background: #FFF;
+      color: var(--text);
+    }
+
+    #btn-back:hover {
+      background: var(--bg);
+      transform: translateY(-2px);
+      box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.08);
+    }
+
+    #btn-back:active,
+    #btn-next:active {
+      transform: translateY(0);
+      box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.06);
+    }
+
+    #btn-next {
+      background: var(--text);
+      color: #FFF;
+    }
+
+    #btn-next:hover {
+      transform: translateY(-2px);
+      box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.15);
     }
 
     .hidden {
       display: none !important;
     }
 
-    .text-center {
+    /* ================================================================
+       AUTH STEP (STEP 2)
+    ================================================================ */
+    .auth-tabs {
+      display: flex;
+      background: #EEEBE6;
+      border: 2px solid #000;
+      border-radius: var(--r-md);
+      padding: 6px;
+      margin-bottom: 28px;
+      position: relative;
+      width: 100%;
+      max-width: 320px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .auth-tab {
+      flex: 1;
+      padding: 12px 20px;
+      font-weight: 900;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-3);
+      z-index: 2;
+      transition: color 0.3s;
+      white-space: nowrap;
       text-align: center;
     }
 
-    /* ================================================================
-       NEW JOB CATEGORY GRID
-    ================================================================ */
-    .job-categories-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
-    }
-    @media (min-width: 500px) {
-      .job-categories-grid { grid-template-columns: repeat(3, 1fr); }
-    }
-    .job-category-card {
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid var(--border-2);
-      border-radius: var(--r-lg);
-      padding: 24px 12px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 12px;
-      cursor: pointer;
-      transition: all 200ms var(--spring);
-    }
-    .job-category-card:hover {
-      background: rgba(255, 255, 255, 0.08);
-      transform: translateY(-4px);
-      border-color: rgba(255, 255, 255, 0.2);
-    }
-    .job-category-emoji { font-size: 38px; line-height: 1; }
-    .job-category-name { font-size: 14px; font-weight: 600; text-align: center; color: var(--text); }
-
-    .job-specific-grid {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-    .job-specific-list {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 10px;
-      max-height: 380px;
-      overflow-y: auto;
-      padding: 4px 2px;
-      scrollbar-width: thin;
-      scrollbar-color: var(--border) transparent;
-    }
-    .job-item {
-      background: var(--bg-2);
-      border: 1px solid var(--border-2);
-      border-radius: var(--r-md);
-      padding: 14px 16px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      cursor: pointer;
-      transition: all 150ms ease;
-      font-size: 14px;
-      font-weight: 500;
-      color: var(--text-2);
-    }
-    .job-item:hover, .job-item.selected {
-      background: var(--accent);
-      border-color: var(--accent);
+    .auth-tab.active {
       color: #000;
     }
 
+    .auth-tab-slider {
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      bottom: 4px;
+      width: calc(50% - 4px);
+      background: #FFF;
+      border: 1.5px solid #000;
+      border-radius: 8px;
+      box-shadow: 2px 2px 0px #000;
+      transition: transform 0.3s var(--spring);
+      z-index: 1;
+    }
+
+    .auth-tabs.login-active .auth-tab-slider {
+      transform: translateX(100%);
+    }
+
+    .social-auth-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 24px;
+      width: 100%;
+      max-width: 320px;
+      margin-left: auto;
+      margin-right: auto;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .btn-social {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      background: #FFF;
+      border: 2px solid #000;
+      border-radius: var(--r-md);
+      padding: 12px 20px;
+      font-weight: 800;
+      font-size: 15px;
+      box-shadow: 4px 4px 0px #000;
+      transition: all 0.2s var(--spring);
+      width: 100%;
+    }
+
+    .btn-social:hover {
+      transform: translate(-2px, -2px);
+      box-shadow: 7px 7px 0px #000;
+    }
+
+    .btn-social:active {
+      transform: translate(2px, 2px);
+      box-shadow: 1px 1px 0px #000;
+    }
+
+    .btn-social.google {
+      color: #EA4335;
+    }
+
+    .btn-social.discord {
+      color: #5865F2;
+    }
+
+    .btn-social svg {
+      width: 22px;
+      height: 22px;
+    }
+
+    .auth-divider {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin: 20px 0;
+      color: var(--text-4);
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .auth-divider::before,
+    .auth-divider::after {
+      content: "";
+      flex: 1;
+      height: 1.5px;
+      background: #E5E2DC;
+    }
+
+    .forgot-password-link {
+      display: block;
+      text-align: right;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 20px;
+      cursor: pointer;
+    }
+
+    /* Modal for forgot password */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9000;
+      padding: 20px;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-card {
+      background: #FFF;
+      border: 3px solid #000;
+      border-radius: var(--r-xl);
+      padding: 32px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 12px 12px 0px #000;
+      position: relative;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      font-size: 24px;
+      color: var(--text-3);
+      cursor: pointer;
+    }
+
+    /* ================================================================
+       WELCOME FEATURES (STEP 1)
+    ================================================================ */
+    .welcome-features {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 32px;
+      width: 100%;
+    }
+
+    @media (max-width: 600px) {
+      .welcome-features {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .welcome-feature {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: #FFF;
+      border: 1.5px solid var(--border-dark);
+      padding: 16px 20px;
+      border-radius: var(--r-lg);
+      font-weight: 700;
+      color: var(--text);
+      box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.05);
+    }
+
+    .welcome-feature-emoji {
+      width: 44px;
+      height: 44px;
+      background: var(--bg);
+      border: 1.5px solid var(--border-dark);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+
+    /* ================================================================
+       PHOTO UPLOAD
+    ================================================================ */
+    .btn-secondary {
+      width: auto;
+      min-width: 210px;
+      margin: 8px auto 0;
+      padding: 12px 28px;
+      background: #FFF;
+      border: 2px solid var(--border-dark);
+      border-radius: var(--r-pill);
+      /* Full pill matches navigation */
+      font-weight: 800;
+      color: var(--text);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      transition: all 300ms var(--spring);
+      box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.06);
+      font-size: 15px;
+    }
+
+    .btn-secondary:hover {
+      transform: translateY(-2px);
+      /* Subtle lift matches buttons */
+      box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.08);
+      /* Balanced shadow */
+      background: var(--bg);
+      border-color: #000;
+    }
+
+    .btn-secondary:active {
+      transform: translateY(0);
+      box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.06);
+    }
+
+    .btn-secondary i {
+      font-style: normal;
+      font-size: 18px;
+    }
+
+    .upload-text {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-2);
+      margin-top: 8px;
+    }
+
+    .upload-input {
+      display: none !important;
+    }
+
+    .upload-zone {
+      width: 200px;
+      height: 200px;
+      margin: 0 auto 32px;
+      border: 3px solid var(--border-dark);
+      border-radius: 40px;
+      /* Logical curve - more professional */
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(10px);
+      box-shadow: 8px 8px 0px rgba(0, 0, 0, 0.08);
+      /* Cartoon Shadow back */
+      transition: all 400ms var(--spring);
+      position: relative;
+      overflow: hidden !important;
+      z-index: 1;
+    }
+
+    .upload-zone:hover {
+      background: #FFF;
+      transform: translateY(-5px) scale(1.02);
+      box-shadow: 14px 14px 0px rgba(0, 0, 0, 0.12) !important;
+      border-color: #000;
+    }
+
+    .upload-zone.has-image {
+      border: 4px solid #000;
+      background: #FFF;
+      box-shadow: 8px 8px 0px rgba(0, 0, 0, 0.08);
+      /* Initial shadow when image is set */
+      transition: all 400ms var(--spring);
+    }
+
+    .upload-preview {
+      width: 100%;
+      height: 100%;
+      border-radius: inherit;
+      /* Perfectly match parent shape */
+      object-fit: cover;
+      display: none;
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 10;
+    }
+
+    .upload-zone.has-image .upload-icon-box {
+      display: none !important;
+    }
+
+    .upload-icon-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .upload-icon-svg {
+      width: 48px;
+      height: 48px;
+      color: var(--text-3);
+      filter: drop-shadow(2px 2px 0px rgba(0, 0, 0, 0.05));
+    }
+
+    .skip-link {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-3);
+      cursor: pointer;
+      text-decoration: underline;
+      text-align: center;
+      display: block;
+      margin-top: 16px;
+    }
+
+    /* ================================================================
+       COMPLETION CARD
+    ================================================================ */
+    .preview-card {
+      background: #FFF;
+      border: 3px solid var(--border-dark);
+      border-radius: 24px;
+      padding: 32px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      box-shadow: 8px 8px 0px rgba(0, 0, 0, 0.08);
+    }
+
+    .preview-avatar {
+      width: 110px;
+      height: 110px;
+      border-radius: 32px;
+      object-fit: cover;
+      border: 3px solid var(--border-dark);
+      margin-bottom: 20px;
+      box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.05);
+    }
+
+    .preview-name {
+      font-size: 26px;
+      font-weight: 900;
+      color: var(--text);
+      letter-spacing: -0.02em;
+      font-family: var(--font-d);
+    }
+
+    .preview-job {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-3);
+      margin-top: 4px;
+      font-family: var(--font);
+    }
+
+    .completion-subtitle {
+      font-size: 16px;
+      color: var(--text-3);
+      text-align: center;
+      line-height: 1.5;
+      margin-bottom: 40px;
+      font-weight: 500;
+      max-width: 500px;
+      font-family: var(--font);
+    }
+
+    .preview-chips {
+      margin-top: 16px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .preview-chips .chip {
+      padding: 8px 16px;
+      border-radius: 12px;
+      background: #FFF;
+      border: 2.5px solid var(--border-dark);
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--text);
+      box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.06);
+      font-family: var(--font);
+    }
+
+    /* Social Links */
+    .social-links-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      /* Increased gap */
+      width: 100%;
+    }
+
+    .social-link-row {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      width: 100%;
+    }
+
+    .social-link-icon {
+      width: 56px;
+      /* Bigger as requested */
+      height: 56px;
+      flex-shrink: 0;
+      border-radius: 16px;
+      border: 2px solid var(--border-dark);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #FFF;
+      box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.05);
+      transition: all 250ms var(--spring);
+    }
+
+    .social-link-icon svg {
+      width: 24px;
+      height: 24px;
+      fill: #1A1A1A;
+      /* Monochrome Luxury */
+    }
+
+    .social-link-row:hover .social-link-icon {
+      transform: translateY(-2px);
+      box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.08);
+      border-color: #000;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* ================================================================
+       CARTOONISH NOTIFICATIONS (NOTYF OVERRIDE)
+    ================================================================ */
+    .notyf__toast {
+      max-width: 420px !important;
+      padding: 0 !important;
+      border-radius: 16px !important;
+      overflow: hidden !important;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.2s var(--ease);
+      display: none !important;
+      /* Changed from flex to none */
+      align-items: center !important;
+      background: transparent !important;
+      border: 2px solid transparent !important;
+      box-shadow: none !important;
+    }
+
+    /* Use Notyf's own visibility mechanism */
+    .notyf__toast.notyf__toast--visible {
+      opacity: 1 !important;
+      pointer-events: auto !important;
+      display: flex !important;
+      /* Only flex when visible */
+      background: #FFF !important;
+      border: 2px solid #1A1A1A !important;
+      box-shadow: 6px 6px 0px #000 !important;
+      animation: toast-pop 0.4s var(--spring) forwards !important;
+    }
+
+    @keyframes toast-pop {
+      0% {
+        transform: translateY(-20px) scale(0.9);
+        opacity: 0;
+      }
+
+      100% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+      }
+    }
+
+    .notyf__icon {
+      padding: 0 16px 0 20px !important;
+      margin: 0 !important;
+      background: transparent !important;
+      display: flex !important;
+      align-items: center;
+      justify-content: center;
+      font-style: normal !important;
+      font-size: 24px !important;
+    }
+
+    .notyf__item {
+      box-shadow: none !important;
+    }
+
+    .notyf__message {
+      padding: 18px 24px 18px 0 !important;
+      font-weight: 900 !important;
+      font-size: 15px !important;
+      letter-spacing: -0.01em !important;
+      color: #000000 !important;
+      font-family: var(--font) !important;
+    }
+
+    .notyf__ripple {
+      display: none !important;
+    }
+
+    /* Input Shake Animation */
+    .shake {
+      animation: input-shake 0.4s ease-in-out !important;
+      border-color: #EF4444 !important;
+    }
+
+    @keyframes input-shake {
+
+      0%,
+      100% {
+        transform: translateX(0);
+      }
+
+      25% {
+        transform: translateX(-6px);
+      }
+
+      50% {
+        transform: translateX(6px);
+      }
+
+      75% {
+        transform: translateX(-3px);
+      }
+    }
+
+    /* Epic Entry Animation Styles - Vintage 10 FPS Cartoon */
+    .epic-entry-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: #FFF5EB;
+      /* Ameple theme background */
+      z-index: 9999;
+      clip-path: circle(0% at 50% 50%);
+      /* 10 FPS style => roughly 10 steps per second */
+      animation: expandPortal 1s steps(10, end) forwards;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    /* Add a solid black underlay to simulate a dark room when portal collapses */
+    .epic-entry-overlay::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: #000;
+      z-index: -1;
+      opacity: 0;
+      transition: opacity 0.1s steps(2, end);
+    }
+
+    .epic-entry-overlay.exit-mode::before {
+      opacity: 1;
+      /* Darken the background underneath instantly */
+    }
+
+    .epic-entry-overlay.exit-mode {
+      /* Looney tunes style circle closing */
+      animation: collapsePortal 0.8s steps(8, end) forwards;
+    }
+
+    @keyframes expandPortal {
+      0% {
+        clip-path: circle(0% at 50% 50%);
+      }
+
+      100% {
+        clip-path: circle(150% at 50% 50%);
+      }
+    }
+
+    @keyframes collapsePortal {
+      0% {
+        clip-path: circle(150% at 50% 50%);
+        transform: scale(1);
+        opacity: 1;
+      }
+
+      90% {
+        clip-path: circle(5% at 50% 50%);
+        transform: scale(1);
+        opacity: 1;
+      }
+
+      100% {
+        clip-path: circle(0% at 50% 50%);
+        transform: scale(0.8);
+        opacity: 0;
+      }
+    }
+
+    .epic-welcome-text {
+      font-family: var(--font);
+      font-weight: 900;
+      font-size: 5vw;
+      /* Responsive huge text */
+      color: #FFFFFF;
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: -2px;
+      -webkit-text-stroke: 3px #000;
+      text-shadow: 6px 6px 0px #000, 12px 12px 0px var(--primary);
+      opacity: 0;
+      transform: scale(0) translateY(50px);
+      /* Stop-motion pop */
+      animation: smashText 1s steps(10, end) 0.6s forwards;
+      z-index: 10;
+    }
+
+    @keyframes smashText {
+      0% {
+        opacity: 0;
+        transform: scale(0) translateY(50px);
+      }
+
+      70% {
+        transform: scale(1.1) translateY(-10px);
+        opacity: 1;
+      }
+
+      100% {
+        transform: scale(1) translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .epic-profile-card {
+      position: absolute;
+      background: #FFFFFF;
+      border: 3px solid #000;
+      border-radius: 12px;
+      box-shadow: 4px 4px 0 #000;
+      padding: 8px 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      opacity: 0;
+      /* Stop motion flying */
+      animation: floatProfile 2.2s steps(15, end) forwards;
+      z-index: 1;
+    }
+
+    .epic-profile-card img {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 2px solid #000;
+      object-fit: cover;
+    }
+
+    .epic-profile-card span {
+      font-weight: 900;
+      font-size: 14px;
+      color: #000;
+      font-family: var(--font);
+    }
+
+    @keyframes floatProfile {
+      0% {
+        opacity: 0;
+        transform: translate(0, 0) scale(0) rotate(0);
+      }
+
+      20% {
+        opacity: 1;
+      }
+
+      80% {
+        opacity: 1;
+      }
+
+      100% {
+        opacity: 0;
+        transform: translate(var(--tx), var(--ty)) scale(var(--s)) rotate(var(--r));
+      }
+    }
   </style>
 </head>
 
@@ -1724,57 +2180,103 @@
 
         <!-- Step 1: Welcome -->
         <div class="step active" id="step-1">
-          <img src="assets/logo.svg" class="welcome-logo s0" alt="Orbiit"
-            onerror="this.outerHTML='<div class=\'welcome-logo-text s0\'>Orbiit</div>'">
+          <img src="assets/logo.svg" class="welcome-logo s0" alt="Ameple"
+            onerror="this.outerHTML='<div class=\'welcome-logo-text s0\'>Ameple</div>'">
           <h1 class="welcome-title s1">Find your people.<br>Anywhere in the world.</h1>
-          <p class="welcome-description s2">Orbiit is a global networking platform where professionals, creatives, and
+          <p class="welcome-description s2">Ameple is a global networking platform where professionals, creatives, and
             learners connect through an interactive 3D globe.</p>
           <div class="welcome-features s3">
             <div class="welcome-feature"><span class="welcome-feature-emoji">🌍</span><span>Explore the Globe</span>
             </div>
-            <div class="welcome-feature"><span class="welcome-feature-emoji">🤝</span><span>Meaningful
-                Connections</span></div>
-            <div class="welcome-feature"><span class="welcome-feature-emoji">💼</span><span>Professional Profiles</span>
+            <div class="welcome-feature"><span class="welcome-feature-emoji">🤝</span><span>Build Real
+                Friendships</span></div>
+            <div class="welcome-feature"><span class="welcome-feature-emoji">🚀</span><span>Collaborate on
+                Projects</span></div>
+            <div class="welcome-feature"><span class="welcome-feature-emoji">🎓</span><span>Learn from Experts</span>
+            </div>
+            <div class="welcome-feature"><span class="welcome-feature-emoji">💼</span><span>Hire & Get Hired</span>
+            </div>
+            <div class="welcome-feature"><span class="welcome-feature-emoji">✨</span><span>Showcase Your Skills</span>
             </div>
           </div>
           <button class="btn-primary full s3" id="btn-get-started">Get Started <span
               class="btn-arrow">&#8594;</span></button>
         </div>
 
-        <!-- Step 2: Name -->
+        <!-- Step 2: Authentication -->
         <div class="step" id="step-2">
           <div class="step-num s0">Step 2 of 12</div>
+          <h2 class="step-title s1">Create your world 🌍</h2>
+          <p class="step-sub s2">Join our global community with a single click or your email.</p>
+
+          <div class="auth-tabs s2" id="auth-tabs">
+            <button class="auth-tab active" data-mode="signup">Sign Up</button>
+            <button class="auth-tab" data-mode="login">Log In</button>
+            <div class="auth-tab-slider"></div>
+          </div>
+
+          <div class="social-auth-grid s3">
+            <button class="btn-social google" id="btn-google-auth">
+              <svg viewBox="0 0 48 48">
+                <path fill="#EA4335"
+                  d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" />
+                <path fill="#4285F4"
+                  d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z" />
+                <path fill="#FBBC05"
+                  d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z" />
+                <path fill="#34A853"
+                  d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z" />
+                <path fill="none" d="M0 0h48v48H0z" />
+              </svg>
+              Google
+            </button>
+            <button class="btn-social discord" id="btn-discord-auth">
+              <svg viewBox="0 0 24 24">
+                <path fill="currentColor"
+                  d="M20.317 4.37a19.791 19.791 0 00-4.885-1.515.074.074 0 00-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 00-5.487 0 12.64 12.64 0 00-.617-1.25.077.077 0 00-.079-.037A19.736 19.736 0 003.677 4.37a.07.07 0 00-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 00.031.057 19.9 19.9 0 005.993 3.03.078.078 0 00.084-.028 14.09 14.09 0 001.226-1.994.076.076 0 00-.041-.106 13.107 13.107 0 01-1.872-.892.077.077 0 01-.008-.128 10.2 10.2 0 00.372-.292.074.074 0 01.077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 01.078.01 10.165 10.165 0 00.372.292.077.077 0 01-.006.128 12.81 12.81 0 01-1.873.892.077.077 0 00-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 00.084.028 19.839 19.839 0 006.002-3.03.077.077 0 00.032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 00-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.419 0 1.334-.956 2.419-2.157 2.419zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.419 0 1.334-.946 2.419-2.157 2.419z" />
+              </svg>
+              Discord
+            </button>
+          </div>
+
+          <div class="auth-divider s3">or use email</div>
+
+          <div class="step-form s4">
+            <div class="input-group">
+              <label>Email Address</label>
+              <input type="email" class="input-field" id="auth-email" placeholder="name@example.com">
+            </div>
+            <div class="input-group">
+              <label>Password</label>
+              <div class="password-wrapper">
+                <input type="password" class="input-field" id="auth-password" placeholder="At least 6 characters">
+                <button class="password-toggle" type="button">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <span class="forgot-password-link hidden" id="btn-forgot-password">Forgot Password?</span>
+          </div>
+
+          <button class="btn-primary full s4" id="btn-auth-submit">Create Account →</button>
+        </div>
+
+        <!-- Step 3: Name -->
+        <div class="step" id="step-3">
+          <div class="step-num s0">Step 3 of 12</div>
           <div class="step-emoji s1">👤</div>
           <h2 class="step-title s1">What should we call you?</h2>
           <p class="step-sub s2">Enter your real name. This is how people will find and recognize you.</p>
           <div class="step-form s3">
             <div class="input-row">
               <div class="input-group"><label>First Name</label><input type="text" class="input-field"
-                  id="input-firstname" placeholder="e.g. Ahmad" maxlength="30"></div>
+                  id="input-firstname" placeholder="Alexander" maxlength="30"></div>
               <div class="input-group"><label>Last Name</label><input type="text" class="input-field"
-                  id="input-lastname" placeholder="e.g. Al-Rashidi" maxlength="30"></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Step 3: Email & Password -->
-        <div class="step" id="step-3">
-          <div class="step-num s0">Step 3 of 12</div>
-          <div class="step-emoji s1">📧</div>
-          <h2 class="step-title s1">Your email address</h2>
-          <p class="step-sub s2">We'll use this to sign you in and keep your account secure.</p>
-          <div class="step-form s3">
-            <div class="input-group"><label>Email</label><input type="email" class="input-field" id="input-email"
-                placeholder="name@example.com"></div>
-            <div class="input-group"><label>Password</label>
-              <div class="password-wrapper"><input type="password" class="input-field" id="input-password"
-                  placeholder="At least 6 characters" minlength="6"><button class="password-toggle"
-                  type="button">&#128065;</button></div>
-            </div>
-            <div class="input-group"><label>Confirm Password</label>
-              <div class="password-wrapper"><input type="password" class="input-field" id="input-password-confirm"
-                  placeholder="Repeat your password"><button class="password-toggle" type="button">&#128065;</button>
-              </div>
+                  id="input-lastname" placeholder="Hamilton" maxlength="30"></div>
             </div>
           </div>
         </div>
@@ -1784,17 +2286,31 @@
           <div class="step-num s0">Step 4 of 12</div>
           <div class="step-emoji s1">🎂</div>
           <h2 class="step-title s1">A bit about you</h2>
-          <p class="step-sub s2">Help us personalize your experience. You must be at least 16 years old.</p>
+          <p class="step-sub s2">Help us personalize your experience.<br>You must be at least 16 years old.</p>
           <div class="step-form s3">
-            <div class="input-group"><label>Date of Birth</label><input type="text" class="input-field" id="input-dob"
-                placeholder="Select your birthday" readonly>
+            <div class="input-group">
+              <label>Date of Birth</label>
+              <div class="dob-grid">
+                <div class="dob-item">
+                  <span class="dob-label">Day</span>
+                  <select id="dob-day"></select>
+                </div>
+                <div class="dob-item month">
+                  <span class="dob-label">Month</span>
+                  <select id="dob-month"></select>
+                </div>
+                <div class="dob-item">
+                  <span class="dob-label">Year</span>
+                  <select id="dob-year"></select>
+                </div>
+              </div>
               <div class="age-display" id="age-display" style="display:none"></div>
             </div>
-            <div class="input-group"><label>Gender</label>
-              <div class="pill-group">
+            <div class="input-group">
+              <label>Gender</label>
+              <div class="pill-group grid-2">
                 <button class="pill gender-pill" data-value="Male">👨 Male</button>
                 <button class="pill gender-pill" data-value="Female">👩 Female</button>
-                <button class="pill gender-pill" data-value="prefer_not_to_say">🤐 Prefer not to say</button>
               </div>
             </div>
           </div>
@@ -1805,11 +2321,21 @@
           <div class="step-num s0">Step 5 of 12</div>
           <div class="step-emoji s1">🌍</div>
           <h2 class="step-title s1">Where are you based?</h2>
-          <p class="step-sub s2">Your location helps people near you discover your profile on the globe.</p>
-          <div class="step-form s3">
-            <div class="input-group"><label>Country</label><select id="select-country"
-                placeholder="Search your country..."></select></div>
-            <button class="btn-secondary w-full" id="btn-geolocation" type="button">📍 Use My Location</button>
+          <p class="step-sub s2">Your location helps people near you discover<br>your profile on the globe.</p>
+          <div class="step-form s3" style="max-width: 500px; margin: 0 auto; gap: 24px;">
+            <div class="input-row">
+              <div class="input-group">
+                <label>Country</label>
+                <select id="select-country" placeholder="Search country..."></select>
+              </div>
+              <div class="input-group">
+                <label>City</label>
+                <select id="select-city" placeholder="Search city..."></select>
+              </div>
+            </div>
+            <div style="display: flex; flex-direction: column; align-items: center; width: 100%; margin-top: -8px;">
+              <button class="btn-secondary" id="btn-geolocation" type="button"><i>📍</i> Use My Location</button>
+            </div>
             <div class="location-confirmation" id="location-confirmation" style="display:none"></div>
           </div>
         </div>
@@ -1820,13 +2346,20 @@
           <div class="step-emoji s1">📸</div>
           <h2 class="step-title s1">Add a profile photo</h2>
           <p class="step-sub s2">People are more likely to connect with profiles that have a photo.</p>
-          <div class="upload-zone s3" id="upload-zone">
-            <img src="" class="upload-preview" id="upload-preview" style="display:none" alt="Preview">
-            <div class="upload-icon">📷</div>
-            <div class="upload-text">Add photo</div>
-            <div class="upload-edit-btn">&#9999;&#65039;</div>
+          <div class="upload-container s3" style="text-align: center;">
+            <div class="upload-zone" id="upload-zone">
+              <img src="" class="upload-preview" id="upload-preview" alt="Preview">
+              <div class="upload-icon-box">
+                <div class="upload-icon-emoji" id="upload-emoji-placeholder"
+                  style="font-size: 40px; margin-bottom: 8px; transition: all 0.4s var(--spring);">😊</div>
+                <div class="upload-text"
+                  style="font-weight: 800; font-size: 14px; text-transform: uppercase; color: #000;">Add Photo</div>
+              </div>
+            </div>
+
+            <input type="file" class="upload-input" id="upload-input" accept="image/jpeg,image/png,image/webp"
+              style="display:none">
           </div>
-          <input type="file" class="upload-input" id="upload-input" accept="image/jpeg,image/png,image/webp">
           <span class="skip-link s3">Skip for now &#8594;</span>
         </div>
 
@@ -1835,11 +2368,15 @@
           <div class="step-num s0">Step 7 of 12</div>
           <div class="step-emoji s1">💼</div>
           <h2 class="step-title s1">What do you do?</h2>
-          <p class="step-sub s2">Select the job that best describes your current role or profession.</p>
-          <div class="step-form s3">
-            <div class="input-group"><label>Your Job</label><select id="select-job"
-                placeholder="Search your job..."></select></div>
+          <p class="step-sub s2">Browse by category and pick the role that fits you best.</p>
+          <div class="job-browser s3">
+            <!-- Category tabs -->
+            <div class="job-cat-tabs" id="job-cat-tabs"></div>
+            <!-- Job cards grid -->
+            <div class="job-cards-grid" id="job-cards-grid"></div>
           </div>
+          <!-- Hidden select for data binding (kept for compatibility) -->
+          <select id="select-job" style="display:none"></select>
         </div>
 
         <!-- Step 8: Skills -->
@@ -1847,92 +2384,171 @@
           <div class="step-num s0">Step 8 of 12</div>
           <div class="step-emoji s1">🎯</div>
           <h2 class="step-title s1">What are your top skills?</h2>
-          <p class="step-sub s2">Choose 3 to 10 skills that represent your strengths.</p>
-          <div class="selection-container s3">
-            <div class="selection-search"><input type="text" class="input-field" id="skills-search"
-                placeholder="Search skills..."></div>
-            <div class="selection-tabs" id="skills-tabs"></div>
-            <div class="selection-grid" id="skills-grid"></div>
-            <div class="selection-counter" id="skills-counter"><span class="count">0</span> / 10 selected (min 3)</div>
+          <p class="step-sub s2">Choose any skills that represent your strengths — pick as many as you like.</p>
+          <div class="job-browser s3">
+            <!-- Category tabs -->
+            <div class="job-cat-tabs" id="skill-cat-tabs"></div>
+            <!-- Skills cards grid -->
+            <div class="job-cards-grid" id="skills-cards-grid"></div>
           </div>
         </div>
 
         <!-- Step 9: Hobbies -->
         <div class="step" id="step-9">
-          <div class="step-num s0">Step 9 of 12</div>
+          <div class="step-num s0">Step 9 of 13</div>
           <div class="step-emoji s1">🎨</div>
           <h2 class="step-title s1">What do you enjoy outside of work?</h2>
-          <p class="step-sub s2">Pick 1 to 8 hobbies that you're passionate about.</p>
-          <div class="selection-container s3">
-            <div class="selection-tabs" id="hobbies-tabs"></div>
-            <div class="selection-grid" id="hobbies-grid"></div>
-            <div class="selection-counter" id="hobbies-counter"><span class="count">0</span> / 8 selected (min 1)</div>
+          <p class="step-sub s2">Pick the hobbies that you're passionate about.</p>
+          <div class="job-browser s3">
+            <!-- Category tabs -->
+            <div class="job-cat-tabs" id="hobbies-tabs"></div>
+            <!-- Hobbies cards grid -->
+            <div class="job-cards-grid" id="hobbies-cards-grid"></div>
           </div>
         </div>
 
-        <!-- Step 10: Languages -->
+        <!-- Step 10: Games -->
         <div class="step" id="step-10">
-          <div class="step-num s0">Step 10 of 12</div>
+          <div class="step-num s0">Step 10 of 13</div>
+          <div class="step-emoji s1">🎮</div>
+          <h2 class="step-title s1">What games do you play?</h2>
+          <p class="step-sub s2">Select the games you're currently into (optional).</p>
+          <div class="job-browser s3">
+            <div class="job-cards-grid" id="games-cards-grid"></div>
+          </div>
+          <span class="skip-link s3" onclick="nextStep()"
+            style="margin-top:20px; cursor:pointer; display: block; text-align: center;">Skip this step →</span>
+        </div>
+
+        <!-- Step 11: Languages -->
+        <div class="step" id="step-11">
+          <div class="step-num s0">Step 11 of 13</div>
           <div class="step-emoji s1">🗣️</div>
           <h2 class="step-title s1">What languages do you speak?</h2>
           <p class="step-sub s2">Select your native language and any additional languages you know.</p>
           <div class="step-form s3">
-            <div class="input-group"><label>Native Language</label><select id="select-native-lang"
-                placeholder="Select native language..."></select></div>
-            <div class="input-group"><label>Additional Languages (optional)</label><select id="select-additional-langs"
-                multiple placeholder="Select additional languages..."></select></div>
+            <div class="input-row">
+              <div class="input-group">
+                <label>Native Language 🏠</label>
+                <select id="select-native-lang" placeholder="Select native..."></select>
+              </div>
+              <div class="input-group">
+                <label>Additional (optional) 🌏</label>
+                <select id="select-additional-langs" multiple placeholder=""></select>
+              </div>
+            </div>
           </div>
         </div>
 
-        <!-- Step 11: Social Links -->
-        <div class="step" id="step-11">
-          <div class="step-num s0">Step 11 of 12</div>
+        <!-- Step 12: Social Links -->
+        <div class="step" id="step-12">
+          <div class="step-num s0">Step 12 of 13</div>
           <div class="step-emoji s1">📱</div>
           <h2 class="step-title s1">Connect your profiles</h2>
           <p class="step-sub s2">Add your social links so people can find you elsewhere. All optional.</p>
           <div class="social-links-list s3">
+            <!-- Instagram -->
             <div class="social-link-row" data-platform="instagram">
-              <div class="social-link-icon">📷</div><input type="url" class="input-field social-input"
-                data-platform="instagram" placeholder="Instagram URL">
+              <div class="social-link-icon">
+                <svg viewBox="0 0 24 24">
+                  <path
+                    d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" />
+                </svg>
+              </div>
+              <input type="url" class="input-field social-input" data-platform="instagram" placeholder="Instagram URL">
             </div>
+            <!-- LinkedIn -->
             <div class="social-link-row" data-platform="linkedin">
-              <div class="social-link-icon">💼</div><input type="url" class="input-field social-input"
-                data-platform="linkedin" placeholder="LinkedIn URL">
+              <div class="social-link-icon">
+                <svg viewBox="0 0 24 24">
+                  <path
+                    d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
+                </svg>
+              </div>
+              <input type="url" class="input-field social-input" data-platform="linkedin" placeholder="LinkedIn URL">
             </div>
+            <!-- X -->
             <div class="social-link-row" data-platform="twitter">
-              <div class="social-link-icon">🐦</div><input type="url" class="input-field social-input"
-                data-platform="twitter" placeholder="X (Twitter) URL">
+              <div class="social-link-icon">
+                <svg viewBox="0 0 24 24">
+                  <path
+                    d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932 6.064-6.932zm-1.292 19.49h2.039L6.486 3.24H4.298l13.311 17.403z" />
+                </svg>
+              </div>
+              <input type="url" class="input-field social-input" data-platform="twitter" placeholder="X (Twitter) URL">
             </div>
+            <!-- YouTube -->
             <div class="social-link-row" data-platform="youtube">
-              <div class="social-link-icon">🎬</div><input type="url" class="input-field social-input"
-                data-platform="youtube" placeholder="YouTube URL">
+              <div class="social-link-icon">
+                <svg viewBox="0 0 24 24">
+                  <path
+                    d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+                </svg>
+              </div>
+              <input type="url" class="input-field social-input" data-platform="youtube" placeholder="YouTube URL">
             </div>
+            <!-- TikTok -->
             <div class="social-link-row" data-platform="tiktok">
-              <div class="social-link-icon">🎵</div><input type="url" class="input-field social-input"
-                data-platform="tiktok" placeholder="TikTok URL">
+              <div class="social-link-icon">
+                <svg role="img" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                  <path
+                    d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z" />
+                </svg>
+              </div>
+              <input type="url" class="input-field social-input" data-platform="tiktok" placeholder="TikTok URL">
             </div>
+
+            <!-- Facebook -->
             <div class="social-link-row" data-platform="facebook">
-              <div class="social-link-icon">👤</div><input type="url" class="input-field social-input"
-                data-platform="facebook" placeholder="Facebook URL">
+              <div class="social-link-icon">
+                <svg viewBox="0 0 24 24">
+                  <path
+                    d="M22.675 0h-21.35c-.732 0-1.325.593-1.325 1.325v21.351c0 .731.593 1.324 1.325 1.324h11.495v-9.294h-3.128v-3.622h3.128v-2.671c0-3.1 1.893-4.788 4.659-4.788 1.325 0 2.463.099 2.795.143v3.24l-1.918.001c-1.504 0-1.795.715-1.795 1.763v2.313h3.587l-.467 3.622h-3.12v9.293h6.116c.73 0 1.323-.593 1.323-1.324v-21.35c0-.732-.593-1.325-1.325-1.325z" />
+                </svg>
+              </div>
+              <input type="url" class="input-field social-input" data-platform="facebook" placeholder="Facebook URL">
             </div>
+            <!-- Discord -->
             <div class="social-link-row" data-platform="discord">
-              <div class="social-link-icon">💬</div><input type="url" class="input-field social-input"
-                data-platform="discord" placeholder="Discord Username">
+              <div class="social-link-icon">
+                <svg viewBox="0 0 24 24">
+                  <path
+                    d="M20.317 4.37a19.791 19.791 0 00-4.885-1.515.074.074 0 00-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 00-5.487 0 12.64 12.64 0 00-.617-1.25.077.077 0 00-.079-.037A19.736 19.736 0 003.677 4.37a.07.07 0 00-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 00.031.057 19.9 19.9 0 005.993 3.03.078.078 0 00.084-.028 14.09 14.09 0 001.226-1.994.076.076 0 00-.041-.106 13.107 13.107 0 01-1.872-.892.077.077 0 01-.008-.128 10.2 10.2 0 00.372-.292.074.074 0 01.077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 01.078.01 10.165 10.165 0 00.372.292.077.077 0 01-.006.128 12.81 12.81 0 01-1.873.892.077.077 0 00-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 00.084.028 19.839 19.839 0 006.002-3.03.077.077 0 00.032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 00-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.419 0 1.334-.956 2.419-2.157 2.419zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.419 0 1.334-.946 2.419-2.157 2.419z" />
+                </svg>
+              </div>
+              <input type="url" class="input-field social-input" data-platform="discord" placeholder="Discord Username">
             </div>
+            <!-- Snapchat -->
             <div class="social-link-row" data-platform="snapchat">
-              <div class="social-link-icon">👻</div><input type="url" class="input-field social-input"
-                data-platform="snapchat" placeholder="Snapchat Username">
+              <div class="social-link-icon">
+                <svg role="img" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                  <path
+                    d="M12.206.793c.99 0 4.347.276 5.93 3.821.529 1.193.403 3.219.299 4.847l-.003.06c-.012.18-.022.345-.03.51.075.045.203.09.401.09.3-.016.659-.12 1.033-.301.165-.088.344-.104.464-.104.182 0 .359.029.509.09.45.149.734.479.734.838.015.449-.39.839-1.213 1.168-.089.029-.209.075-.344.119-.45.135-1.139.36-1.333.81-.09.224-.061.524.12.868l.015.015c.06.136 1.526 3.475 4.791 4.014.255.044.435.27.42.509 0 .075-.015.149-.045.225-.24.569-1.273.988-3.146 1.271-.059.091-.12.375-.164.57-.029.179-.074.36-.134.553-.076.271-.27.405-.555.405h-.03c-.135 0-.313-.031-.538-.074-.36-.075-.765-.135-1.273-.135-.3 0-.599.015-.913.074-.6.104-1.123.464-1.723.884-.853.599-1.826 1.288-3.294 1.288-.06 0-.119-.015-.18-.015h-.149c-1.468 0-2.427-.675-3.279-1.288-.599-.42-1.107-.779-1.707-.884-.314-.045-.629-.074-.928-.074-.54 0-.958.089-1.272.149-.211.043-.391.074-.54.074-.374 0-.523-.224-.583-.42-.061-.192-.09-.389-.135-.567-.046-.181-.105-.494-.166-.57-1.918-.222-2.95-.642-3.189-1.226-.031-.063-.052-.15-.055-.225-.015-.243.165-.465.42-.509 3.264-.54 4.73-3.879 4.791-4.02l.016-.029c.18-.345.224-.645.119-.869-.195-.434-.884-.658-1.332-.809-.121-.029-.24-.074-.346-.119-1.107-.435-1.257-.93-1.197-1.273.09-.479.674-.793 1.168-.793.146 0 .27.029.383.074.42.194.789.3 1.104.3.234 0 .384-.06.465-.105l-.046-.569c-.098-1.626-.225-3.651.307-4.837C7.392 1.077 10.739.807 11.727.807l.419-.015h.06z" />
+                </svg>
+              </div>
+              <input type="text" class="input-field social-input" data-platform="snapchat"
+                placeholder="Snapchat Username">
             </div>
+
+
+
+            <!-- WhatsApp -->
             <div class="social-link-row" data-platform="whatsapp">
-              <div class="social-link-icon">📱</div><input type="text" class="input-field social-input"
-                data-platform="whatsapp" placeholder="WhatsApp Number">
+              <div class="social-link-icon">
+                <svg viewBox="0 0 24 24">
+                  <path
+                    d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.72.938 3.659 1.435 5.631 1.435h.008c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
+                </svg>
+              </div>
+              <input type="text" class="input-field social-input" data-platform="whatsapp"
+                placeholder="WhatsApp Number">
             </div>
           </div>
           <span class="skip-link s3" style="margin-top:14px;">Skip this step &#8594;</span>
         </div>
 
-        <!-- Step 12: Complete -->
-        <div class="step" id="step-12">
+        <!-- Step 13: Complete -->
+        <div class="step" id="step-13">
           <h2 class="completion-title s0" id="completion-title">🎉 You're all set!</h2>
           <p class="completion-subtitle s1">Here's a preview of your profile. You can edit it anytime.</p>
           <div class="preview-card s2">
@@ -1947,8 +2563,8 @@
 
       <!-- Card Footer -->
       <div class="card-footer" id="nav-buttons">
-        <button id="btn-back" class="hidden">&#8592; Back</button>
-        <button id="btn-next" style="display:none;">Continue &#8594;</button>
+        <button id="btn-back" class="btn btn-secondary hidden">← Back</button>
+        <button id="btn-next" class="btn btn-primary" style="display:none;">Continue →</button>
       </div>
     </div><!-- /steps-wrapper -->
 
@@ -1964,7 +2580,7 @@
           var i = +d.dataset.i;
           d.className = 'pdot' + (i < n ? ' done' : i === n ? ' now' : '');
         });
-        if (stepLabel) stepLabel.textContent = 'Step ' + n + ' of 12';
+        if (stepLabel) stepLabel.textContent = 'Step ' + n + ' of 13';
         dotsWrapper.classList.toggle('hidden-dots', n === 1);
       }
       var obs = new MutationObserver(function (muts) {
@@ -1988,6 +2604,15 @@
         });
         btnObs.observe(nextBtn, { attributes: true, attributeFilter: ['style'] });
       }
+      // Photo upload click handler for custom button
+      var customUploadBtn = document.getElementById('btn-upload-custom');
+      var uploadInput = document.getElementById('upload-input');
+      if (customUploadBtn && uploadInput) {
+        customUploadBtn.addEventListener('click', function () {
+          uploadInput.click();
+        });
+      }
+
       updateDots(1);
     })();
   </script>
@@ -1997,9 +2622,12 @@
   <script src="js/data/skills.js"></script>
   <script src="js/data/hobbies.js"></script>
   <script src="js/data/languages.js"></script>
+  <script src="js/data/games.js"></script>
+  <script src="js/data/cities.js"></script>
+  <script src="js/data/country-coords.js"></script>
   <script src="js/lib/supabase.js"></script>
   <script src="js/auth.js"></script>
-    <script src="js/lib/emoji.js"></script>
+  <script src="js/lib/emoji.js"></script>
   <script src="js/onboarding.js"></script>
 
 </body>

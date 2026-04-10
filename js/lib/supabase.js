@@ -1,24 +1,21 @@
-// Orbiit — Supabase Client Initialization
-// Uses ESM import from CDN
+// Ameple — Supabase Client Initialization
+// Uses ESM import from CDN with ready-promise pattern
 
-const SUPABASE_URL = 'YOUR_SUPABASE_URL';
-const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+const SUPABASE_URL = 'https://agifokfebftbznqqpvjq.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFnaWZva2ZlYmZ0YnpucXFwdmpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0OTIzMjYsImV4cCI6MjA5MTA2ODMyNn0.IlmyJmX18fHlco3EWhuqomEKy8wON_cRh6VsFPBmAD0';
 
-let supabase = null;
+window.AmepleSupabase = null;
 
-try {
-  if (SUPABASE_URL !== 'YOUR_SUPABASE_URL' && SUPABASE_ANON_KEY !== 'YOUR_SUPABASE_ANON_KEY') {
-    // Dynamic import for Supabase ESM
-    import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm').then(({ createClient }) => {
-      supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-      window.OrbiitSupabase = supabase;
-      console.log('✅ Supabase client initialized');
-    });
-  } else {
-    console.log('ℹ️ Supabase not configured — using localStorage mode');
+// Promise that resolves when Supabase is ready
+window.AmepleSupabaseReady = (async function () {
+  try {
+    const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    window.AmepleSupabase = supabase;
+    console.log('✅ Supabase client initialized');
+    return supabase;
+  } catch (e) {
+    console.error('❌ Supabase init failed:', e);
+    return null;
   }
-} catch (e) {
-  console.log('ℹ️ Supabase unavailable — using localStorage mode');
-}
-
-window.OrbiitSupabase = supabase;
+})();

@@ -1,5 +1,5 @@
 /* ===================================================
-   Orbiit — Main CSS (Global Design System)
+   Ameple — Main CSS (Global Design System)
    iOS 18 Font & Emoji Foundation — SF Pro + Apple Emoji
    =================================================== */
 
@@ -30,6 +30,20 @@
   font-family: 'SF Pro Display';
   font-style: normal;
   font-weight: 700;
+  font-display: swap;
+  src: url('https://cdn.jsdelivr.net/npm/sf-pro@1.0.3/font/woff2/sf-pro-display_bold.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'SF Pro Display';
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url('https://cdn.jsdelivr.net/npm/sf-pro@1.0.3/font/woff2/sf-pro-display_bold.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'SF Pro Display';
+  font-style: normal;
+  font-weight: 900;
   font-display: swap;
   src: url('https://cdn.jsdelivr.net/npm/sf-pro@1.0.3/font/woff2/sf-pro-display_bold.woff2') format('woff2');
 }
@@ -73,8 +87,8 @@
   --radius-lg: 16px;
   --radius-xl: 24px;
   --radius-full: 9999px;
-  --font-body: 'SF Pro Text', 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
-  --font-display: 'SF Pro Display', 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+  --font-body: 'Segoe UI', 'SF Pro Text', 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+  --font-display: 'Segoe UI', 'SF Pro Display', 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
   --transition: all 0.2s ease;
 }
 
@@ -83,6 +97,7 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  font-family: inherit;
 }
 
 html {
@@ -183,50 +198,57 @@ h3 { font-size: 20px; }
   justify-content: center;
   gap: 8px;
   padding: 12px 28px;
-  border-radius: var(--radius-full);
-  font-weight: 600;
+  border-radius: 12px;
+  font-weight: 700;
   font-size: 15px;
-  transition: var(--transition);
+  transition: all 0.2s ease;
   cursor: pointer;
   white-space: nowrap;
   line-height: 1;
+  border: 2.5px solid #1A1A2E;
+  box-shadow: 4px 4px 0px #1A1A2E;
+  background: #FFFFFF;
+  color: #1A1A2E;
+}
+
+.btn:active {
+  transform: translateY(2px) translateX(2px) !important;
+  box-shadow: 0px 0px 0px #1A1A2E !important;
 }
 
 .btn-primary {
-  background: var(--accent);
-  color: #FFFDEB;
-  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+  background: #2563EB;
+  color: #FFFFFF;
 }
 
 .btn-primary:hover {
-  background: var(--accent-hover);
-  box-shadow: 0 4px 16px rgba(37, 99, 235, 0.4);
-  transform: translateY(-1px);
-}
-
-.btn-primary:active {
-  transform: translateY(0);
+  background: #1D4ED8;
+  transform: translateY(-2px) translateX(-2px);
+  box-shadow: 6px 6px 0px #1A1A2E;
 }
 
 .btn-secondary {
-  background: var(--bg-secondary);
-  color: var(--text-primary);
-  border: 1px solid var(--border);
+  background: #FFFFFF;
+  color: #1A1A2E;
 }
 
 .btn-secondary:hover {
-  background: var(--bg-tertiary);
-  border-color: var(--text-tertiary);
+  background: #F8FAFF;
+  transform: translateY(-2px) translateX(-2px);
+  box-shadow: 6px 6px 0px #1A1A2E;
 }
 
 .btn-ghost {
   background: transparent;
-  color: var(--text-secondary);
+  color: #1A1A2E;
+  border-color: transparent;
+  box-shadow: none;
 }
 
 .btn-ghost:hover {
-  background: var(--bg-secondary);
-  color: var(--text-primary);
+  background: #F8FAFF;
+  border-color: #1A1A2E;
+  box-shadow: 4px 4px 0px #1A1A2E;
 }
 
 .btn-sm {
@@ -472,14 +494,15 @@ h3 { font-size: 20px; }
 }
 
 .modal {
-  background: var(--bg-primary);
-  border-radius: var(--radius-xl);
+  background: #FFFBF0;
+  border-radius: 32px;
+  border: 3px solid #1A1A2E;
   padding: 32px;
-  max-width: 480px;
+  max-width: 520px;
   width: 90%;
-  box-shadow: var(--shadow-lg);
+  box-shadow: 12px 12px 0px rgba(0, 0, 0, 0.15);
   transform: translateY(20px) scale(0.95);
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .modal-overlay.active .modal {
@@ -490,25 +513,40 @@ h3 { font-size: 20px; }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
+}
+
+.modal-header h3 {
+  font-family: 'Segoe UI', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 24px;
+  font-weight: 950;
+  color: #1A1A2E;
+  letter-spacing: -0.03em;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .modal-close {
-  width: 32px;
-  height: 32px;
-  border-radius: var(--radius-sm);
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  border: 2px solid #1A1A2E;
+  background: #FFF;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 18px;
-  color: var(--text-tertiary);
+  color: #1A1A2E;
   cursor: pointer;
-  transition: var(--transition);
+  transition: all 0.12s ease-out;
+  box-shadow: 2px 2px 0px #1A1A2E;
 }
 
 .modal-close:hover {
-  background: var(--bg-secondary);
-  color: var(--text-primary);
+  background: #FEE2E2;
+  transform: translateY(1.5px) translateX(1.5px);
+  box-shadow: 0px 0px 0px #1A1A2E;
 }
 
 /* --- Badges --- */
@@ -680,16 +718,25 @@ h3 { font-size: 20px; }
   justify-content: center;
   width: 36px;
   height: 36px;
-  border-radius: var(--radius-sm);
-  font-size: 18px;
-  transition: var(--transition);
-  background: var(--bg-secondary);
-  color: var(--text-secondary);
+  border-radius: 8px;
+  background: #FFF;
+  border: 2px solid #1A1A2E;
+  box-shadow: 2px 2px 0px #1A1A2E;
+  transition: all 0.12s ease-out;
+  color: #1A1A2E;
+  text-decoration: none;
+}
+
+.social-icon svg {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+  display: block;
 }
 
 .social-icon:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-sm);
+  transform: translateY(1.5px) translateX(1.5px);
+  box-shadow: 0px 0px 0px #1A1A2E;
 }
 
 /* --- Toggle --- */
@@ -808,6 +855,26 @@ input[type="range"]::-webkit-slider-thumb {
 .ts-wrapper .ts-dropdown .active {
   background: var(--accent-light) !important;
   color: var(--accent) !important;
+}
+
+/* ✅ GLOBAL FIX: Kill the second line and phantom cursor in TomSelect */
+.ts-wrapper.has-items .ts-control > input {
+  display: none !important;
+}
+
+.ts-wrapper.has-items .ts-control {
+  display: flex !important;
+  align-items: center !important;
+  flex-wrap: nowrap !important;
+}
+
+.ts-wrapper.has-items .ts-control .item {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100% !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
 }
 
 /* --- Flatpickr Overrides --- */
@@ -990,9 +1057,32 @@ img.apple-emoji.flag-emoji {
 /* Buttons with emoji (general) */
 .btn img.apple-emoji,
 button img.apple-emoji {
-  height: 1em;
-  width: 1em;
-  vertical-align: -0.1em;
+  height: 1.2em;
+  width: 1.2em;
+  vertical-align: -0.2em;
+  margin: 0 4px;
 }
 
+/* --- Neo-brutalist Notyf Overrides --- */
+.notyf__toast {
+  border: 2.5px solid #1A1A2E !important;
+  border-radius: 12px !important;
+  box-shadow: 4px 4px 0px #1A1A2E !important;
+  font-family: var(--font-body) !important;
+  font-weight: 700 !important;
+  color: #1A1A2E !important;
+  padding: 14px 20px !important;
+  max-width: 400px !important;
+}
 
+.notyf__toast--success {
+  background: #4ADE80 !important; /* Brighter neo-green */
+}
+
+.notyf__toast--error {
+  background: #F87171 !important; /* Brighter neo-red */
+}
+
+.notyf__message {
+  color: #1A1A2E !important;
+}
