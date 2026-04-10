@@ -1,9 +1,9 @@
-// Orbiit — Auth State Management
-// Uses localStorage as primary store, with Supabase hooks when available
+// Ameple — Auth State Management
+// Uses Supabase as primary store, with localStorage cache
 
 (function() {
   // Initialize global state
-  window.OrbiitState = window.OrbiitState || {
+  window.AmepleState = window.AmepleState || {
     currentUser: null,
     users: [],
     filteredUsers: [],
@@ -13,13 +13,13 @@
     currentStatus: '💬 Open to chat'
   };
 
-  const AUTH_KEY = 'orbiit_auth';
-  const USER_KEY = 'orbiit_user_data';
-  const CONNECTIONS_KEY = 'orbiit_connections';
-  const MESSAGES_KEY = 'orbiit_messages';
-  const ONBOARDING_KEY = 'orbiit_onboarding';
+  const AUTH_KEY = 'ameple_auth';
+  const USER_KEY = 'ameple_user_data';
+  const CONNECTIONS_KEY = 'ameple_connections';
+  const MESSAGES_KEY = 'ameple_messages';
+  const ONBOARDING_KEY = 'ameple_onboarding';
 
-  // --- LocalStorage Helpers ---
+  // --- LocalStorage Helpers (cache layer) ---
   function saveToStorage(key, data) {
     try {
       localStorage.setItem(key, JSON.stringify(data));
@@ -38,110 +38,289 @@
     }
   }
 
+  // --- Helper: wait for Supabase ---
+  async function getSupabase() {
+    if (window.AmepleSupabase) return window.AmepleSupabase;
+    if (window.AmepleSupabaseReady) {
+      return await window.AmepleSupabaseReady;
+    }
+    return null;
+  }
+
   // --- Auth Functions ---
-  window.OrbiitAuth = {
+  window.AmepleAuth = {
+    // Helper for formatting "Last seen"
+    formatTimeAgo: function(dateInput) {
+      if (!dateInput) return 'Not joined yet';
+      const date = (typeof dateInput === 'string') ? new Date(dateInput) : dateInput;
+      const now = new Date();
+      const diffInSecs = Math.floor((now - date) / 1000);
+
+      if (diffInSecs < 60) return 'Just now';
+      const diffInMins = Math.floor(diffInSecs / 60);
+      if (diffInMins < 60) return `Active ${diffInMins}m ago`;
+      const diffInHours = Math.floor(diffInMins / 60);
+      if (diffInHours < 24) return `Active ${diffInHours}h ago`;
+      const diffInDays = Math.floor(diffInHours / 24);
+      if (diffInDays < 7) return `Active ${diffInDays}d ago`;
+      return `Active on ${date.toLocaleDateString()}`;
+    },
+
     signUp: async function(email, password, userData) {
-      // Try Supabase first
-      if (window.OrbiitSupabase) {
-        try {
-          const { data, error } = await window.OrbiitSupabase.auth.signUp({
-            email,
-            password,
-            options: { data: userData }
-          });
-          if (error) throw error;
+      const sb = await getSupabase();
+      if (!sb) return { user: null, error: { message: 'Supabase not available' } };
 
-          // Insert user profile
-          const { error: profileError } = await window.OrbiitSupabase
-            .from('users')
-            .insert({
-              id: data.user.id,
-              email,
-              ...userData
-            });
+      try {
+        const { data, error } = await sb.auth.signUp({
+          email,
+          password,
+          options: { data: userData }
+        });
+        if (error) throw error;
 
-          if (profileError) console.warn('Profile insert error:', profileError);
-          return { user: data.user, error: null };
-        } catch (e) {
-          console.warn('Supabase signUp failed, using localStorage:', e);
-        }
+        // Insert full user profile
+        const profile = {
+          id: data.user.id,
+          email,
+          first_name: userData.first_name || '',
+          last_name: userData.last_name || '',
+          date_of_birth: userData.date_of_birth || null,
+          age: userData.age || null,
+          gender: userData.gender || null,
+          country: userData.country || null,
+          city: userData.city || null,
+          flag: userData.flag || '',
+          latitude: userData.latitude || 0,
+          longitude: userData.longitude || 0,
+          avatar_url: userData.avatar_url || 'assets/default-avatar.svg',
+          job_name: userData.job_name || null,
+          job_emoji: userData.job_emoji || null,
+          job_category: userData.job_category || null,
+          job_type: userData.job_type || null,
+          current_status: '💬 Open to chat',
+          skills: userData.skills || [],
+          hobbies: userData.hobbies || [],
+          jobs: userData.jobs || [userData.job_name].filter(Boolean),
+          languages: userData.languages || [],
+          social_links: userData.social_links || {},
+          favorite_games: userData.favorite_games || [],
+          average_rating: 0,
+          total_ratings: 0,
+          is_online: true,
+          last_seen: new Date().toISOString()
+        };
+
+        // Upsert profile (handle_new_user trigger may have created a row)
+        const { error: profileError } = await sb
+          .from('users')
+          .upsert(profile, { onConflict: 'id' });
+
+        if (profileError) console.warn('Profile upsert error:', profileError);
+
+        // Cache locally
+        saveToStorage(AUTH_KEY, { userId: data.user.id, email });
+        saveToStorage(USER_KEY, profile);
+        window.AmepleState.currentUser = profile;
+
+        return { user: profile, error: null };
+      } catch (e) {
+        console.error('SignUp error:', e);
+        return { user: null, error: e };
       }
-
-      // LocalStorage fallback
-      const userId = 'usr-local-' + Date.now();
-      const user = {
-        id: userId,
-        email,
-        ...userData,
-        created_at: new Date().toISOString(),
-        is_online: true,
-        average_rating: 0,
-        total_ratings: 0,
-        current_status: '💬 Open to chat'
-      };
-
-      saveToStorage(AUTH_KEY, { userId, email });
-      saveToStorage(USER_KEY, user);
-      window.OrbiitState.currentUser = user;
-
-      return { user, error: null };
     },
 
     signIn: async function(email, password) {
-      if (window.OrbiitSupabase) {
-        try {
-          const { data, error } = await window.OrbiitSupabase.auth.signInWithPassword({
-            email,
-            password
-          });
-          if (error) throw error;
-          return { user: data.user, error: null };
-        } catch (e) {
-          console.warn('Supabase signIn failed:', e);
+      const sb = await getSupabase();
+      if (!sb) return { user: null, error: { message: 'Supabase not available' } };
+
+      try {
+        const { data, error } = await sb.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+
+        // Fetch full profile
+        const { data: profile, error: profileError } = await sb
+          .from('users')
+          .select('*')
+          .eq('id', data.user.id)
+          .single();
+
+        if (profileError) throw profileError;
+
+        // Update online status, and fix coordinates if missing or placed in wrong country
+        const statusUpdate = { is_online: true, last_seen: new Date().toISOString() };
+
+        const countryCenter = profile.country && window.AmepleCountryCoords &&
+          window.AmepleCountryCoords[profile.country];
+
+        const missingCoords = !profile.latitude || !profile.longitude ||
+          (profile.latitude === 0 && profile.longitude === 0);
+
+        // Check if user is placed in a wrong country (>12° from their country center)
+        const wrongCountry = countryCenter && !missingCoords &&
+          (Math.abs(profile.latitude  - countryCenter.lat) > 12 ||
+           Math.abs(profile.longitude - countryCenter.lon) > 12);
+
+        // Check if coords are only country-level precision (within 0.15° of country center)
+        const onlyCountryLevel = countryCenter && !missingCoords &&
+          Math.abs(profile.latitude  - countryCenter.lat) < 0.15 &&
+          Math.abs(profile.longitude - countryCenter.lon) < 0.15;
+
+        if ((missingCoords || wrongCountry || onlyCountryLevel) && profile.country) {
+          // Try city geocoding first
+          if (profile.city) {
+            try {
+              const query = encodeURIComponent(profile.city + ', ' + profile.country);
+              const res = await fetch(
+                'https://nominatim.openstreetmap.org/search?q=' + query + '&format=json&limit=1',
+                { headers: { 'Accept-Language': 'en' } }
+              );
+              const results = await res.json();
+              if (results && results.length > 0) {
+                const geoLat = parseFloat(results[0].lat);
+                const geoLon = parseFloat(results[0].lon);
+                // Validate result is within 12° of country center
+                const valid = !countryCenter ||
+                  (Math.abs(geoLat - countryCenter.lat) <= 12 &&
+                   Math.abs(geoLon - countryCenter.lon) <= 12);
+                if (valid) {
+                  const offset = (Math.random() - 0.5) * 0.04;
+                  statusUpdate.latitude  = geoLat + offset;
+                  statusUpdate.longitude = geoLon + offset;
+                  profile.latitude  = statusUpdate.latitude;
+                  profile.longitude = statusUpdate.longitude;
+                }
+              }
+            } catch (e) { /* silent fail */ }
+          }
+          // Fallback to country center if city geocoding didn't work
+          if ((!statusUpdate.latitude) && countryCenter) {
+            statusUpdate.latitude  = countryCenter.lat;
+            statusUpdate.longitude = countryCenter.lon;
+            profile.latitude  = statusUpdate.latitude;
+            profile.longitude = statusUpdate.longitude;
+          }
         }
-      }
 
-      // LocalStorage fallback
-      const auth = loadFromStorage(AUTH_KEY);
-      if (auth && auth.email === email) {
-        const user = loadFromStorage(USER_KEY);
-        window.OrbiitState.currentUser = user;
-        return { user, error: null };
-      }
+        await sb.from('users')
+          .update(statusUpdate)
+          .eq('id', data.user.id);
 
-      return { user: null, error: { message: 'Invalid credentials' }};
+        profile.is_online = true;
+        profile.last_seen = new Date().toISOString();
+
+        // Cache locally
+        saveToStorage(AUTH_KEY, { userId: data.user.id, email });
+        saveToStorage(USER_KEY, profile);
+        window.AmepleState.currentUser = profile;
+
+        // Start Presence tracking (handles offline on tab close / network drop)
+        setupPresenceChannel(profile.id);
+
+        return { user: profile, error: null };
+      } catch (e) {
+        console.error('SignIn error:', e);
+        return { user: null, error: e };
+      }
     },
 
     signOut: async function() {
-      if (window.OrbiitSupabase) {
+      const user = this.getCurrentUser();
+      const sb = await getSupabase();
+
+      if (user && sb) {
         try {
-          await window.OrbiitSupabase.auth.signOut();
-        } catch (e) {}
+          await sb.from('users')
+            .update({ is_online: false, last_seen: new Date().toISOString() })
+            .eq('id', user.id);
+          await sb.auth.signOut();
+        } catch (e) {
+          console.warn('SignOut error:', e);
+        }
       }
+
       localStorage.removeItem(AUTH_KEY);
-      window.OrbiitState.currentUser = null;
+      localStorage.removeItem(USER_KEY);
+      localStorage.removeItem(CONNECTIONS_KEY);
+      localStorage.removeItem(MESSAGES_KEY);
+      window.AmepleState.currentUser = null;
       window.location.href = 'index.html';
     },
 
+    // Get current user from cache (sync) — use fetchCurrentUser for fresh data
     getCurrentUser: function() {
-      if (window.OrbiitState.currentUser) return window.OrbiitState.currentUser;
+      if (window.AmepleState.currentUser) return window.AmepleState.currentUser;
       const user = loadFromStorage(USER_KEY);
       if (user) {
-        window.OrbiitState.currentUser = user;
+        window.AmepleState.currentUser = user;
       }
       return user;
+    },
+
+    // Fetch fresh user profile from Supabase
+    fetchCurrentUser: async function() {
+      const sb = await getSupabase();
+      if (!sb) return this.getCurrentUser();
+
+      try {
+        const { data: { user: authUser } } = await sb.auth.getUser();
+        if (!authUser) return null;
+
+        const { data: profile } = await sb
+          .from('users')
+          .select('*')
+          .eq('id', authUser.id)
+          .single();
+
+        if (profile) {
+          saveToStorage(USER_KEY, profile);
+          saveToStorage(AUTH_KEY, { userId: profile.id, email: profile.email });
+          window.AmepleState.currentUser = profile;
+          return profile;
+        }
+      } catch (e) {
+        console.warn('fetchCurrentUser error:', e);
+      }
+      return this.getCurrentUser();
     },
 
     isLoggedIn: function() {
       return !!loadFromStorage(AUTH_KEY);
     },
 
-    updateUser: function(updates) {
+    // Check Supabase session
+    checkSession: async function() {
+      const sb = await getSupabase();
+      if (!sb) return this.isLoggedIn();
+      try {
+        const { data: { session } } = await sb.auth.getSession();
+        return !!session;
+      } catch (e) {
+        return this.isLoggedIn();
+      }
+    },
+
+    updateUser: async function(updates) {
       const user = this.getCurrentUser();
       if (!user) return;
+
+      // Update local cache immediately
       Object.assign(user, updates);
       saveToStorage(USER_KEY, user);
-      window.OrbiitState.currentUser = user;
+      window.AmepleState.currentUser = user;
+
+      // Sync to Supabase
+      const sb = await getSupabase();
+      if (sb && user.id) {
+        try {
+          const { error } = await sb
+            .from('users')
+            .update(updates)
+            .eq('id', user.id);
+          if (error) console.warn('updateUser error:', error);
+        } catch (e) {
+          console.warn('updateUser sync error:', e);
+        }
+      }
     },
 
     // --- Onboarding Data ---
@@ -157,55 +336,509 @@
       localStorage.removeItem(ONBOARDING_KEY);
     },
 
-    // --- Connections ---
+    // --- Connections (Supabase primary) ---
     getConnections: function() {
       return loadFromStorage(CONNECTIONS_KEY) || [];
     },
 
-    saveConnection: function(connection) {
+    fetchConnections: async function() {
+      const sb = await getSupabase();
+      const user = this.getCurrentUser();
+      if (!sb || !user) return this.getConnections();
+
+      try {
+        // Get connections where user is sender or receiver
+        const { data, error } = await sb
+          .from('connections')
+          .select('*')
+          .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`)
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        // Collect all "other user" IDs in one shot, then fetch them in a
+        // single .in() query instead of one query per connection (N+1 fix).
+        const otherIds = data.map(conn =>
+          conn.sender_id === user.id ? conn.receiver_id : conn.sender_id
+        );
+
+        let usersMap = {};
+        if (otherIds.length > 0) {
+          const { data: usersData } = await sb
+            .from('users')
+            .select('*')
+            .in('id', otherIds);
+          (usersData || []).forEach(u => { usersMap[u.id] = u; });
+        }
+
+        const connections = data.map(conn => {
+          const otherId = conn.sender_id === user.id ? conn.receiver_id : conn.sender_id;
+          return {
+            id: conn.id,
+            requester_id: conn.sender_id,
+            receiver_id: conn.receiver_id,
+            receiver: usersMap[otherId] || {},
+            status: conn.status,
+            message: conn.message,
+            created_at: conn.created_at
+          };
+        });
+
+        saveToStorage(CONNECTIONS_KEY, connections);
+        window.AmepleState.connections = connections;
+        return connections;
+      } catch (e) {
+        console.warn('fetchConnections error:', e);
+        return this.getConnections();
+      }
+    },
+
+    saveConnection: async function(connection) {
+      const sb = await getSupabase();
+      const user = this.getCurrentUser();
+
+      if (sb && user) {
+        try {
+          const { data, error } = await sb
+            .from('connections')
+            .insert({
+              sender_id: user.id,
+              receiver_id: connection.receiver_id || connection.receiver?.id,
+              status: connection.status || 'pending',
+              message: connection.message || null
+            })
+            .select()
+            .single();
+
+          if (error) throw error;
+
+          // Update local with DB-generated id
+          connection.id = data.id;
+          connection.requester_id = data.sender_id;
+        } catch (e) {
+          console.warn('saveConnection error:', e);
+        }
+      }
+
+      // Cache locally
       const connections = this.getConnections();
       connections.push(connection);
       saveToStorage(CONNECTIONS_KEY, connections);
-      window.OrbiitState.connections = connections;
+      window.AmepleState.connections = connections;
     },
 
-    updateConnection: function(connectionId, updates) {
+    updateConnection: async function(connectionId, updates) {
+      const sb = await getSupabase();
+
+      if (sb) {
+        try {
+          const { error } = await sb
+            .from('connections')
+            .update(updates)
+            .eq('id', connectionId);
+          if (error) console.warn('updateConnection error:', error);
+        } catch (e) {
+          console.warn('updateConnection sync error:', e);
+        }
+      }
+
+      // Update local cache
       const connections = this.getConnections();
       const idx = connections.findIndex(c => c.id === connectionId);
       if (idx >= 0) {
         Object.assign(connections[idx], updates);
         saveToStorage(CONNECTIONS_KEY, connections);
-        window.OrbiitState.connections = connections;
+        window.AmepleState.connections = connections;
       }
     },
 
-    // --- Messages ---
+    // --- Messages (Supabase primary) ---
     getMessages: function(connectionId) {
       const allMessages = loadFromStorage(MESSAGES_KEY) || {};
       return allMessages[connectionId] || [];
     },
 
-    saveMessage: function(connectionId, message) {
+    fetchMessages: async function(connectionId) {
+      const sb = await getSupabase();
+      if (!sb) return this.getMessages(connectionId);
+
+      try {
+        const { data, error } = await sb
+          .from('messages')
+          .select('*')
+          .eq('connection_id', connectionId)
+          .order('created_at', { ascending: true });
+
+        if (error) throw error;
+
+        // Cache locally
+        const allMessages = loadFromStorage(MESSAGES_KEY) || {};
+        allMessages[connectionId] = data.map(msg => ({
+          id: msg.id,
+          connection_id: msg.connection_id,
+          sender_id: msg.sender_id,
+          content: msg.content,
+          type: msg.type || 'text',
+          call_type: msg.call_type,
+          duration: msg.duration,
+          is_read: msg.is_read,
+          created_at: msg.created_at
+        }));
+        saveToStorage(MESSAGES_KEY, allMessages);
+        window.AmepleState.messages = allMessages;
+        return allMessages[connectionId];
+      } catch (e) {
+        console.warn('fetchMessages error:', e);
+        return this.getMessages(connectionId);
+      }
+    },
+
+    saveMessage: async function(connectionId, message) {
+      // Cache locally first so UI updates immediately
       const allMessages = loadFromStorage(MESSAGES_KEY) || {};
       if (!allMessages[connectionId]) allMessages[connectionId] = [];
       allMessages[connectionId].push(message);
       saveToStorage(MESSAGES_KEY, allMessages);
-      window.OrbiitState.messages = allMessages;
+      window.AmepleState.messages = allMessages;
+
+      const sb = await getSupabase();
+
+      if (sb) {
+        try {
+          const { data, error } = await sb
+            .from('messages')
+            .insert({
+              connection_id: connectionId,
+              sender_id: message.sender_id,
+              content: message.content,
+              type: message.type || 'text',
+              call_type: message.call_type || null,
+              duration: message.duration || null,
+              is_read: false
+            })
+            .select()
+            .single();
+
+          if (error) throw error;
+          // Update cached message with DB-generated id and timestamp
+          message.id = data.id;
+          message.created_at = data.created_at;
+          const idx = allMessages[connectionId].findIndex(m => m === message);
+          if (idx >= 0) allMessages[connectionId][idx] = message;
+          saveToStorage(MESSAGES_KEY, allMessages);
+          window.AmepleState.messages = allMessages;
+        } catch (e) {
+          console.warn('saveMessage error:', e);
+        }
+      }
+    },
+
+    // Mark messages as read
+    markMessagesRead: async function(connectionId) {
+      const sb = await getSupabase();
+      const user = this.getCurrentUser();
+      if (!sb || !user) return;
+
+      try {
+        await sb
+          .from('messages')
+          .update({ is_read: true })
+          .eq('connection_id', connectionId)
+          .neq('sender_id', user.id)
+          .eq('is_read', false);
+      } catch (e) {
+        console.warn('markMessagesRead error:', e);
+      }
     },
 
     // --- Status ---
     setStatus: function(status) {
-      window.OrbiitState.currentStatus = status;
+      window.AmepleState.currentStatus = status;
       this.updateUser({ current_status: status });
+    },
+
+    // --- Fetch all users for globe ---
+    fetchAllUsers: async function() {
+      const sb = await getSupabase();
+      if (!sb) return [];
+
+      try {
+        const { data, error } = await sb
+          .from('users')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        return data || [];
+      } catch (e) {
+        console.warn('fetchAllUsers error:', e);
+        return [];
+      }
     }
   };
 
-  // Initialize state on load
-  const user = window.OrbiitAuth.getCurrentUser();
-  if (user) {
-    window.OrbiitState.currentUser = user;
-    window.OrbiitState.currentStatus = user.current_status || '💬 Open to chat';
+  // --- OAuth Callback Handler ---
+  // Handles redirect back from Google/Discord login
+  window.AmepleAuth.handleOAuthCallback = async function() {
+    const sb = await getSupabase();
+    if (!sb) return false;
+
+    try {
+      // Check if there's a session from OAuth redirect
+      const { data: { session }, error } = await sb.auth.getSession();
+      if (error || !session) return false;
+
+      const authUser = session.user;
+      if (!authUser) return false;
+
+      // Check if user profile exists in our users table
+      const { data: existingProfile } = await sb
+        .from('users')
+        .select('id')
+        .eq('id', authUser.id)
+        .maybeSingle();
+
+      if (existingProfile) {
+        // Existing user — fetch full profile and log them in
+        const { data: profile } = await sb
+          .from('users')
+          .select('*')
+          .eq('id', authUser.id)
+          .single();
+
+        if (profile) {
+          // Update online status
+          await sb.from('users')
+            .update({ is_online: true, last_seen: new Date().toISOString() })
+            .eq('id', authUser.id);
+
+          profile.is_online = true;
+          saveToStorage(AUTH_KEY, { userId: profile.id, email: profile.email });
+          saveToStorage(USER_KEY, profile);
+          window.AmepleState.currentUser = profile;
+
+          // Start Presence tracking
+          setupPresenceChannel(profile.id);
+
+          // Check if profile is complete (has country and job — set during onboarding)
+          const isProfileComplete = profile.country && profile.job_name;
+          return {
+            status: isProfileComplete ? 'existing' : 'new',
+            user: profile
+          };
+        }
+      }
+
+      // New OAuth user — extract info from provider metadata
+      const meta = authUser.user_metadata || {};
+      const providerName = authUser.app_metadata?.provider || 'oauth';
+
+      // Extract name parts
+      let firstName = meta.full_name?.split(' ')[0]
+        || meta.name?.split(' ')[0]
+        || meta.custom_claims?.global_name?.split(' ')[0]
+        || meta.preferred_username
+        || '';
+      let lastName = meta.full_name?.split(' ').slice(1).join(' ')
+        || meta.name?.split(' ').slice(1).join(' ')
+        || '';
+
+      const profile = {
+        id: authUser.id,
+        email: authUser.email || meta.email || '',
+        first_name: firstName,
+        last_name: lastName,
+        avatar_url: meta.avatar_url || meta.picture || 'assets/default-avatar.svg',
+        is_online: true,
+        last_seen: new Date().toISOString(),
+        current_status: '💬 Open to chat',
+        average_rating: 0,
+        total_ratings: 0,
+        skills: [],
+        hobbies: [],
+        jobs: [],
+        languages: [],
+        social_links: {},
+        favorite_games: []
+      };
+
+      // Insert the new profile
+      const { error: insertError } = await sb
+        .from('users')
+        .upsert(profile, { onConflict: 'id' });
+
+      if (insertError) console.warn('OAuth profile insert error:', insertError);
+
+      saveToStorage(AUTH_KEY, { userId: profile.id, email: profile.email });
+      saveToStorage(USER_KEY, profile);
+      window.AmepleState.currentUser = profile;
+
+      // Start Presence tracking
+      setupPresenceChannel(profile.id);
+
+      return { status: 'new', user: profile };
+    } catch (e) {
+      console.error('OAuth callback error:', e);
+      return false;
+    }
+  };
+
+  // --- Online / Presence Management ---
+  const TABS_KEY = 'ameple_active_tabs';
+  let _presenceChannel = null;
+
+  // Supabase Presence: tracks user online state via WebSocket heartbeat.
+  // When a tab closes / network drops, Supabase removes the user from the
+  // presence state automatically — other connected clients receive 'leave'
+  // and immediately mark the user offline in the DB.
+  async function setupPresenceChannel(userId) {
+    const sb = await getSupabase();
+    if (!sb || !userId) return;
+
+    // Remove any stale channel (e.g. on re-login)
+    if (_presenceChannel) {
+      try { sb.removeChannel(_presenceChannel); } catch (e) {}
+      _presenceChannel = null;
+    }
+
+    _presenceChannel = sb.channel('ameple-presence', {
+      config: { presence: { key: userId } }
+    });
+
+    _presenceChannel
+      .on('presence', { event: 'join' }, ({ key }) => {
+        // A user connected (could be us on another tab, or someone else)
+        if (key !== userId) {
+          sb.from('users')
+            .update({ is_online: true })
+            .eq('id', key)
+            .then(() => {
+              window.dispatchEvent(new CustomEvent('ameple:user-online', { detail: { userId: key } }));
+            });
+        }
+      })
+      .on('presence', { event: 'leave' }, ({ key }) => {
+        // A user's WebSocket disconnected (tab closed, network dropped, etc.)
+        const now = new Date().toISOString();
+        sb.from('users')
+          .update({ is_online: false, last_seen: now })
+          .eq('id', key)
+          .then(() => {
+            window.dispatchEvent(new CustomEvent('ameple:user-offline', {
+              detail: { userId: key, last_seen: now }
+            }));
+          });
+      })
+      .subscribe(async (status) => {
+        if (status === 'SUBSCRIBED') {
+          await _presenceChannel.track({
+            user_id: userId,
+            online_at: new Date().toISOString()
+          });
+        }
+      });
+
+    window.AmeplePresenceChannel = _presenceChannel;
   }
-  window.OrbiitState.connections = window.OrbiitAuth.getConnections();
-  window.OrbiitState.messages = loadFromStorage(MESSAGES_KEY) || {};
+
+  async function handleTabOpen() {
+    let tabsCount = parseInt(localStorage.getItem(TABS_KEY) || '0');
+    tabsCount++;
+    localStorage.setItem(TABS_KEY, tabsCount.toString());
+
+    const user = window.AmepleAuth.getCurrentUser();
+    if (user) {
+      user.is_online = true;
+      user.last_seen = new Date().toISOString();
+      saveToStorage(USER_KEY, user);
+
+      const sb = await getSupabase();
+      if (sb) {
+        await sb.from('users').update({ is_online: true, last_seen: user.last_seen }).eq('id', user.id);
+        // Set up Presence so offline is detected even on hard close / network drop
+        setupPresenceChannel(user.id);
+      }
+    }
+  }
+
+  function handleTabClose() {
+    let tabsCount = parseInt(localStorage.getItem(TABS_KEY) || '0');
+    tabsCount = Math.max(0, tabsCount - 1);
+    localStorage.setItem(TABS_KEY, tabsCount.toString());
+
+    if (tabsCount === 0) {
+      const user = window.AmepleAuth.getCurrentUser();
+      if (user) {
+        user.is_online = false;
+        user.last_seen = new Date().toISOString();
+        saveToStorage(USER_KEY, user);
+
+        // Best-effort DB update (may not complete before unload).
+        // Supabase Presence will also detect the disconnect and other
+        // connected clients will update the DB via the 'leave' event.
+        if (window.AmepleSupabase) {
+          window.AmepleSupabase
+            .from('users')
+            .update({ is_online: false, last_seen: user.last_seen })
+            .eq('id', user.id);
+        }
+      }
+    }
+  }
+
+  // Monitor tab lifecycle
+  window.addEventListener('load', handleTabOpen);
+  window.addEventListener('beforeunload', handleTabClose);
+
+  // Initialize state on load from cache
+  const user = window.AmepleAuth.getCurrentUser();
+  if (user) {
+    window.AmepleState.currentUser = user;
+    window.AmepleState.currentStatus = user.current_status || '💬 Open to chat';
+  }
+  window.AmepleState.connections = window.AmepleAuth.getConnections();
+  window.AmepleState.messages = loadFromStorage(MESSAGES_KEY) || {};
+
+  // Auto-restore Supabase session on page load (handles OAuth/refresh cases)
+  window.AmepleAuth.initSession = async function() {
+    const sb = await getSupabase();
+    if (!sb) return;
+
+    try {
+      const { data: { session } } = await sb.auth.getSession();
+      if (session && !window.AmepleAuth.isLoggedIn()) {
+        // We have a Supabase session but no local cache — restore it
+        const result = await window.AmepleAuth.handleOAuthCallback();
+
+        // Check if this is a new OAuth user who needs to complete their profile
+        const oauthPending = localStorage.getItem('ameple_oauth_pending');
+        if (oauthPending) {
+          localStorage.removeItem('ameple_oauth_pending');
+          if (result && result.status === 'new') {
+            // Redirect to onboarding to complete profile (steps 3-13)
+            window.location.href = 'index.html?complete_profile=1';
+            return;
+          }
+        }
+      }
+    } catch (e) {
+      console.warn('initSession error:', e);
+    }
+
+    // Listen for auth state changes (login, logout, token refresh)
+    sb.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_OUT') {
+        localStorage.removeItem(AUTH_KEY);
+        localStorage.removeItem(USER_KEY);
+        window.AmepleState.currentUser = null;
+      }
+    });
+  };
+
+  // Run session init after Supabase is ready
+  if (window.AmepleSupabaseReady) {
+    window.AmepleSupabaseReady.then(() => {
+      window.AmepleAuth.initSession();
+    });
+  }
 })();
