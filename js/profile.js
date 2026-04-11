@@ -5,6 +5,58 @@
   let currentPickType = ''; // 'skills', 'hobbies', 'languages', 'jobs'
   let selectedItems = [];
 
+  // ── Pending changes: collected locally, sent to Supabase only on Save ──────
+  let pendingChanges = {};
+
+  // Apply updates to the in-memory user object WITHOUT saving to Supabase/cache
+  function applyLocal(updates) {
+    const user = window.AmepleAuth.getCurrentUser();
+    if (!user) return;
+    Object.assign(user, updates);
+    Object.assign(pendingChanges, updates);
+    showSaveBar();
+  }
+
+  function showSaveBar() {
+    let bar = document.getElementById('profile-save-bar');
+    if (bar) return; // already visible
+    bar = document.createElement('div');
+    bar.id = 'profile-save-bar';
+    bar.style.cssText = [
+      'position:fixed', 'bottom:0', 'left:0', 'right:0', 'z-index:200',
+      'background:#1A1A2E', 'color:#fff', 'padding:14px 32px',
+      'display:flex', 'align-items:center', 'justify-content:space-between',
+      'box-shadow:0 -4px 0 rgba(0,0,0,0.15)', 'gap:12px'
+    ].join(';');
+    bar.innerHTML = '<span style="font-size:14px;font-weight:700;">You have unsaved changes</span>'
+      + '<button id="btn-save-profile-changes" style="'
+      + 'background:#10B981;color:#fff;border:3px solid #fff;border-radius:12px;'
+      + 'padding:8px 22px;font-weight:900;font-size:14px;cursor:pointer;'
+      + 'box-shadow:3px 3px 0 rgba(255,255,255,0.2);">Save Changes</button>';
+    document.body.appendChild(bar);
+    document.getElementById('btn-save-profile-changes').onclick = saveAllChanges;
+  }
+
+  function hideSaveBar() {
+    const bar = document.getElementById('profile-save-bar');
+    if (bar) bar.remove();
+  }
+
+  async function saveAllChanges() {
+    if (!Object.keys(pendingChanges).length) return;
+    const btn = document.getElementById('btn-save-profile-changes');
+    if (btn) { btn.textContent = 'Saving…'; btn.disabled = true; }
+    try {
+      await window.AmepleAuth.updateUser(pendingChanges);
+      pendingChanges = {};
+      hideSaveBar();
+      notyf.success('Changes saved!');
+    } catch (e) {
+      notyf.error('Failed to save. Please try again.');
+      if (btn) { btn.textContent = 'Save Changes'; btn.disabled = false; }
+    }
+  }
+
   document.addEventListener('DOMContentLoaded', async function() {
     notyf = new Notyf({
       duration: 3000,
@@ -264,10 +316,9 @@
   function removeItem(type, index) {
     const user = window.AmepleAuth.getCurrentUser();
     if (!user[type]) return;
-    
-    const removedItem = user[type].splice(index, 1);
-    
-    // If we removed the primary job, update the header summary too
+
+    user[type].splice(index, 1);
+
     let updates = { [type]: user[type] };
     if (type === 'jobs') {
       updates.job_name = user.jobs[0] || '';
@@ -275,9 +326,8 @@
       updates.job_emoji = jd ? jd.emoji : '';
     }
 
-    window.AmepleAuth.updateUser(updates);
+    applyLocal(updates);
     renderProfile(user);
-    notyf.success('Item removed');
   }
 
   function initSelectionModal() {
@@ -293,7 +343,7 @@
       if (!selectedItems.length) { modal.classList.remove('active'); return; }
       const user = window.AmepleAuth.getCurrentUser();
       const currentItems = user[currentPickType] || [];
-      
+
       // Merge unique
       let updated;
       if (currentPickType === 'languages') {
@@ -305,31 +355,27 @@
         updated = [...currentItems, ...newItems];
       }
 
-      let userUpdates = { [currentPickType]: updated };
-      
-      // Special handling for single-item types
+      // Status: save immediately (it's a live indicator, not a profile field)
       if (currentPickType === 'status') {
-        const status = selectedItems[0];
-        window.AmepleAuth.setStatus(status);
+        window.AmepleAuth.setStatus(selectedItems[0]);
         if (window.AmepleSidebar) window.AmepleSidebar.updateStatusDisplay();
-        notyf.success('Status updated!');
         modal.classList.remove('active');
         renderProfile(window.AmepleAuth.getCurrentUser());
+        notyf.success('Status updated!');
         return;
       }
-      
-      // Special handling for jobs: first one becomes header primary job
+
+      let userUpdates = { [currentPickType]: updated };
+
+      // Jobs: keep header fields in sync
       if (currentPickType === 'jobs' && updated.length > 0) {
         userUpdates.job_name = updated[0];
         const jd = window.AmepleData.jobs.find(j => j.title === updated[0]);
-        if (jd) {
-          userUpdates.job_emoji = jd.emoji;
-          userUpdates.job_category = jd.category;
-        }
+        if (jd) { userUpdates.job_emoji = jd.emoji; userUpdates.job_category = jd.category; }
       }
 
-      window.AmepleAuth.updateUser(userUpdates);
-      notyf.success('Items added!');
+      // Apply locally only — user must click Save to push to Supabase
+      applyLocal(userUpdates);
       modal.classList.remove('active');
       renderProfile(window.AmepleAuth.getCurrentUser());
     };

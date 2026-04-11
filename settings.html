@@ -223,10 +223,6 @@
             <span class="settings-row-label">Sign out of your account</span>
             <button class="btn btn-danger btn-sm" id="btn-signout">Sign Out</button>
           </div>
-          <div class="settings-row">
-            <span class="settings-row-label">Clear all local data</span>
-            <button class="btn btn-secondary btn-sm" id="btn-clear-data">Clear Data</button>
-          </div>
         </div>
       </div>
     </main>
@@ -312,16 +308,6 @@
         }
       });
 
-      // ── Clear local data ───────────────────────────────────────────────────
-      document.getElementById('btn-clear-data').addEventListener('click', function() {
-        if (confirm('This will clear all locally cached data. You will stay logged in. Continue?')) {
-          // Clear only app caches — keep auth session intact
-          var authKey = localStorage.getItem('ameple_auth');
-          localStorage.clear();
-          if (authKey) localStorage.setItem('ameple_auth', authKey);
-          notyf.success('Local cache cleared');
-        }
-      });
     });
   </script>
   <!-- Status Dropdown -->
