@@ -18,28 +18,30 @@
   }
 
   function showSaveBar() {
-    let bar = document.getElementById('profile-save-bar');
-    if (bar) return; // already visible
-    bar = document.createElement('div');
+    if (document.getElementById('profile-save-bar')) return;
+    const bar = document.createElement('div');
     bar.id = 'profile-save-bar';
-    bar.style.cssText = [
-      'position:fixed', 'bottom:0', 'left:0', 'right:0', 'z-index:200',
-      'background:#1A1A2E', 'color:#fff', 'padding:14px 32px',
-      'display:flex', 'align-items:center', 'justify-content:space-between',
-      'box-shadow:0 -4px 0 rgba(0,0,0,0.15)', 'gap:12px'
-    ].join(';');
-    bar.innerHTML = '<span style="font-size:14px;font-weight:700;">You have unsaved changes</span>'
-      + '<button id="btn-save-profile-changes" style="'
-      + 'background:#10B981;color:#fff;border:3px solid #fff;border-radius:12px;'
-      + 'padding:8px 22px;font-weight:900;font-size:14px;cursor:pointer;'
-      + 'box-shadow:3px 3px 0 rgba(255,255,255,0.2);">Save Changes</button>';
+    bar.style.cssText = 'position:fixed;bottom:32px;right:32px;z-index:200;display:flex;gap:10px;';
+    bar.innerHTML =
+      '<button id="btn-discard-profile-changes" class="btn btn-secondary" style="padding:10px 20px;font-size:14px;">↩ Discard</button>'
+      + '<button id="btn-save-profile-changes" class="btn btn-primary" style="padding:10px 22px;font-size:14px;">💾 Save</button>';
     document.body.appendChild(bar);
     document.getElementById('btn-save-profile-changes').onclick = saveAllChanges;
+    document.getElementById('btn-discard-profile-changes').onclick = discardChanges;
   }
 
   function hideSaveBar() {
     const bar = document.getElementById('profile-save-bar');
     if (bar) bar.remove();
+  }
+
+  function discardChanges() {
+    pendingChanges = {};
+    hideSaveBar();
+    // Re-fetch from Supabase to restore original data
+    window.AmepleAuth.fetchCurrentUser().then(function(user) {
+      if (user) renderProfile(user);
+    });
   }
 
   async function saveAllChanges() {
@@ -50,10 +52,10 @@
       await window.AmepleAuth.updateUser(pendingChanges);
       pendingChanges = {};
       hideSaveBar();
-      notyf.success('Changes saved!');
+      notyf.success('Profile saved!');
     } catch (e) {
-      notyf.error('Failed to save. Please try again.');
-      if (btn) { btn.textContent = 'Save Changes'; btn.disabled = false; }
+      notyf.error('Failed to save. Try again.');
+      if (btn) { btn.textContent = '💾 Save'; btn.disabled = false; }
     }
   }
 
