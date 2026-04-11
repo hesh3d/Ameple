@@ -6,11 +6,173 @@
     initSidebar();
     setupSidebarAvatar();
     initStatusDropdown();
-    initCollapsibleSidebar(); // Add this
-    
-    // Check if user status element exists to update it initially
+    initCollapsibleSidebar();
     updateStatusDisplay();
+
+    // Notifications & badge
+    requestNotificationPermission();
+    refreshChatNavBadge();
+
+    // On non-chat pages, set up a lightweight realtime listener for the badge
+    if (!window.location.pathname.endsWith('chat.html')) {
+      setupGlobalNotificationListener();
+    }
   });
+
+  // --- Browser Notification Permission ---
+  function requestNotificationPermission() {
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
+  }
+
+  // --- Show a browser push notification ---
+  function showBrowserNotification(title, body, icon) {
+    if (!('Notification' in window) || Notification.permission !== 'granted') return;
+    if (document.visibilityState === 'visible') return; // already looking at the page
+    try {
+      new Notification(title, {
+        body: body,
+        icon: icon || 'assets/logo.svg'
+      });
+    } catch (e) { /* silent */ }
+  }
+
+  // --- Calculate total unread count from localStorage ---
+  function calcTotalUnread() {
+    const user = window.AmepleAuth && window.AmepleAuth.getCurrentUser();
+    if (!user) return 0;
+
+    // Unread messages
+    let msgCount = 0;
+    try {
+      const allMessages = JSON.parse(localStorage.getItem('ameple_messages') || '{}');
+      Object.values(allMessages).forEach(function(msgs) {
+        msgs.forEach(function(m) {
+          if (!m.is_read && m.sender_id !== user.id) msgCount++;
+        });
+      });
+    } catch (e) { /* silent */ }
+
+    // Pending incoming connection requests
+    let reqCount = 0;
+    try {
+      const connections = JSON.parse(localStorage.getItem('ameple_connections') || '[]');
+      connections.forEach(function(c) {
+        if (c.status === 'pending' && c.requester_id !== user.id) reqCount++;
+      });
+    } catch (e) { /* silent */ }
+
+    return msgCount + reqCount;
+  }
+
+  // --- Update the red badge on the Messages nav item ---
+  function refreshChatNavBadge() {
+    const badge = document.getElementById('chat-nav-badge');
+    if (!badge) return;
+    const count = calcTotalUnread();
+    if (count > 0) {
+      badge.textContent = count > 99 ? '99+' : count;
+      badge.style.display = '';
+    } else {
+      badge.style.display = 'none';
+    }
+  }
+
+  // Expose so chat.js can call it after marking messages read
+  window.AmepleSidebarBadge = { refresh: refreshChatNavBadge };
+
+  // --- Global realtime listener (used on non-chat pages) ---
+  let _globalNotifChannel = null;
+
+  async function setupGlobalNotificationListener() {
+    const sb = window.AmepleSupabase || (window.AmepleSupabaseReady && await window.AmepleSupabaseReady);
+    if (!sb) return;
+
+    const user = window.AmepleAuth && window.AmepleAuth.getCurrentUser();
+    if (!user) return;
+
+    if (_globalNotifChannel) {
+      try { sb.removeChannel(_globalNotifChannel); } catch (e) {}
+    }
+
+    _globalNotifChannel = sb
+      .channel('sidebar-notif')
+
+      // New incoming message
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'messages'
+      }, function(payload) {
+        const msg = payload.new;
+        if (msg.sender_id === user.id) return;
+
+        // Cache it so badge count is accurate
+        try {
+          const allMessages = JSON.parse(localStorage.getItem('ameple_messages') || '{}');
+          if (!allMessages[msg.connection_id]) allMessages[msg.connection_id] = [];
+          if (!allMessages[msg.connection_id].some(function(m) { return m.id === msg.id; })) {
+            allMessages[msg.connection_id].push(msg);
+            localStorage.setItem('ameple_messages', JSON.stringify(allMessages));
+          }
+        } catch (e) { /* silent */ }
+
+        refreshChatNavBadge();
+
+        // Browser notification
+        const connections = window.AmepleAuth.getConnections();
+        const conn = connections.find(function(c) { return c.id === msg.connection_id; });
+        const senderName = conn && conn.receiver
+          ? ((conn.receiver.first_name || '') + ' ' + (conn.receiver.last_name || '')).trim()
+          : 'New message';
+        const avatar = (conn && conn.receiver && conn.receiver.avatar_url) || 'assets/logo.svg';
+        showBrowserNotification(senderName, msg.content.slice(0, 100), avatar);
+      })
+
+      // New connection request
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'connections',
+        filter: 'receiver_id=eq.' + user.id
+      }, async function(payload) {
+        const conn = payload.new;
+
+        // Fetch sender name for notification
+        let senderName = 'Someone';
+        let senderAvatar = 'assets/logo.svg';
+        try {
+          const { data: sender } = await sb.from('users').select('first_name,last_name,avatar_url').eq('id', conn.sender_id).single();
+          if (sender) {
+            senderName = ((sender.first_name || '') + ' ' + (sender.last_name || '')).trim() || senderName;
+            senderAvatar = sender.avatar_url || senderAvatar;
+          }
+        } catch (e) { /* silent */ }
+
+        // Cache request so badge reflects it
+        try {
+          const connections = JSON.parse(localStorage.getItem('ameple_connections') || '[]');
+          if (!connections.some(function(c) { return c.id === conn.id; })) {
+            connections.unshift({
+              id: conn.id,
+              requester_id: conn.sender_id,
+              receiver_id: conn.receiver_id,
+              receiver: { id: conn.sender_id, first_name: senderName.split(' ')[0], last_name: senderName.split(' ').slice(1).join(' '), avatar_url: senderAvatar },
+              status: 'pending',
+              message: conn.message,
+              created_at: conn.created_at
+            });
+            localStorage.setItem('ameple_connections', JSON.stringify(connections));
+          }
+        } catch (e) { /* silent */ }
+
+        refreshChatNavBadge();
+        showBrowserNotification('New connection request', senderName + ' wants to connect with you', senderAvatar);
+      })
+
+      .subscribe();
+  }
 
   function initCollapsibleSidebar() {
     const sidebar = document.querySelector('.left-sidebar');

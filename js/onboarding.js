@@ -1318,7 +1318,7 @@
 
   // Helper to show error without spamming
   function showError(msg, targetId) {
-    const existing = document.querySelectorAll('.notyf__toast');
+    const existing = document.querySelectorAll('.ameple-toast.error');
     if (existing.length > 0) {
       // If toast exists, just shake it
       shake(targetId);

@@ -397,13 +397,64 @@
       const sb = await getSupabase();
       const user = this.getCurrentUser();
 
+      // Prevent self-connection
+      const otherId = connection.receiver_id || connection.receiver?.id;
+      if (!otherId || (user && otherId === user.id)) return;
+
       if (sb && user) {
         try {
+          // Check for existing connection between these two users (either direction)
+          const { data: existing } = await sb
+            .from('connections')
+            .select('id, status, sender_id, receiver_id')
+            .or(
+              `and(sender_id.eq.${user.id},receiver_id.eq.${otherId}),` +
+              `and(sender_id.eq.${otherId},receiver_id.eq.${user.id})`
+            )
+            .neq('status', 'declined')
+            .maybeSingle();
+
+          if (existing) {
+            if (existing.status === 'accepted') {
+              // Already connected — skip
+              return;
+            }
+            if (existing.status === 'pending' && existing.sender_id === user.id) {
+              // Current user already sent a pending request — skip duplicate
+              connection.id = existing.id;
+              connection.requester_id = user.id;
+              const connections = this.getConnections();
+              if (!connections.some(c => c.id === existing.id)) {
+                connections.push(connection);
+                saveToStorage(CONNECTIONS_KEY, connections);
+                window.AmepleState.connections = connections;
+              }
+              return;
+            }
+            if (existing.status === 'pending' && existing.sender_id === otherId) {
+              // The other user already sent us a request — auto-accept instead
+              await sb.from('connections').update({ status: 'accepted' }).eq('id', existing.id);
+              connection.id = existing.id;
+              connection.status = 'accepted';
+              connection.requester_id = existing.sender_id;
+              const connections = this.getConnections();
+              const idx = connections.findIndex(c => c.id === existing.id);
+              if (idx >= 0) {
+                connections[idx].status = 'accepted';
+              } else {
+                connections.push(connection);
+              }
+              saveToStorage(CONNECTIONS_KEY, connections);
+              window.AmepleState.connections = connections;
+              return;
+            }
+          }
+
           const { data, error } = await sb
             .from('connections')
             .insert({
               sender_id: user.id,
-              receiver_id: connection.receiver_id || connection.receiver?.id,
+              receiver_id: otherId,
               status: connection.status || 'pending',
               message: connection.message || null
             })
@@ -422,9 +473,11 @@
 
       // Cache locally
       const connections = this.getConnections();
-      connections.push(connection);
-      saveToStorage(CONNECTIONS_KEY, connections);
-      window.AmepleState.connections = connections;
+      if (!connections.some(c => c.id === connection.id)) {
+        connections.push(connection);
+        saveToStorage(CONNECTIONS_KEY, connections);
+        window.AmepleState.connections = connections;
+      }
     },
 
     updateConnection: async function(connectionId, updates) {

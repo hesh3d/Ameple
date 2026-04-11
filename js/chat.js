@@ -42,6 +42,15 @@
     }
   }
 
+  // --- Browser push notification helper ---
+  function showBrowserNotification(title, body, icon) {
+    if (!('Notification' in window) || Notification.permission !== 'granted') return;
+    if (document.visibilityState === 'visible') return;
+    try {
+      new Notification(title, { body: body, icon: icon || 'assets/logo.svg' });
+    } catch (e) { /* silent */ }
+  }
+
   // --- Realtime: listen for messages, requests, profile & presence changes ---
   let realtimeChannel = null;
 
@@ -95,9 +104,12 @@
           if (conn && conn.receiver) {
             const name = ((conn.receiver.first_name || '') + ' ' + (conn.receiver.last_name || '')).trim();
             notyf.success('💬 ' + name + ': ' + msg.content.slice(0, 60));
+            // Browser push notification when tab is in background
+            showBrowserNotification(name, msg.content.slice(0, 100), conn.receiver.avatar_url);
           }
         }
         loadConversations();
+        if (window.AmepleSidebarBadge) window.AmepleSidebarBadge.refresh();
       })
 
       // ── 2. New connection request arriving (I am the receiver) ────────────
@@ -137,6 +149,8 @@
           ? ((sender.first_name || '') + ' ' + (sender.last_name || '')).trim()
           : 'Someone';
         notyf.success('👋 ' + senderName + ' sent you a connection request!');
+        showBrowserNotification('New connection request', senderName + ' wants to connect with you', sender && sender.avatar_url);
+        if (window.AmepleSidebarBadge) window.AmepleSidebarBadge.refresh();
       })
 
       // ── 3. Connection status updated (accepted / declined) ────────────────
@@ -272,7 +286,18 @@
   // --- Load Conversations ---
   function loadConversations() {
     const connections = window.AmepleAuth.getConnections();
-    const accepted = connections.filter(function(c) { return c.status === 'accepted'; });
+
+    // Deduplicate: keep only one conversation per other user (the most recent one)
+    const seenUserIds = {};
+    const accepted = connections
+      .filter(function(c) { return c.status === 'accepted'; })
+      .filter(function(c) {
+        const otherId = (c.receiver || {}).id;
+        if (!otherId || seenUserIds[otherId]) return false;
+        seenUserIds[otherId] = true;
+        return true;
+      });
+
     const list = document.getElementById('conversation-list');
 
     if (accepted.length === 0) {
@@ -332,8 +357,23 @@
     const list = document.getElementById('requests-list');
     const badge = document.getElementById('requests-tab-badge');
 
-    const received = connections.filter(function(c) { return c.status === 'pending' && c.requester_id !== currentUserId; });
-    const sent     = connections.filter(function(c) { return c.status === 'pending' && c.requester_id === currentUserId; });
+    // Deduplicate by other user id — if the same person appears in both sent & received
+    // (mutual request race condition), show only the received one (so we can accept it)
+    const seenReqUserIds = {};
+    const received = connections.filter(function(c) {
+      if (c.status !== 'pending' || c.requester_id === currentUserId) return false;
+      const otherId = (c.receiver || {}).id || c.requester_id;
+      if (seenReqUserIds[otherId]) return false;
+      seenReqUserIds[otherId] = true;
+      return true;
+    });
+    const sent = connections.filter(function(c) {
+      if (c.status !== 'pending' || c.requester_id !== currentUserId) return false;
+      const otherId = (c.receiver || {}).id || c.receiver_id;
+      // Don't show as "sent" if we already show it as "received"
+      if (seenReqUserIds[otherId]) return false;
+      return true;
+    });
 
     // Badge shows only incoming requests
     if (badge) {
@@ -540,6 +580,7 @@
       renderMessages(connection.id);
       // Mark messages as read
       window.AmepleAuth.markMessagesRead(connection.id);
+      if (window.AmepleSidebarBadge) window.AmepleSidebarBadge.refresh();
     } catch (e) {
       console.warn('Failed to fetch messages:', e);
     }
