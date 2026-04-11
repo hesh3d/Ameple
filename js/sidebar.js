@@ -100,6 +100,11 @@
       try { sb.removeChannel(_globalNotifChannel); } catch (e) {}
     }
 
+    // Fetch connections upfront so sender names are available when first notification arrives
+    if (window.AmepleAuth.fetchConnections) {
+      window.AmepleAuth.fetchConnections().catch(function() {});
+    }
+
     _globalNotifChannel = sb
       .channel('sidebar-notif')
 
@@ -112,7 +117,12 @@
         const msg = payload.new;
         if (msg.sender_id === user.id) return;
 
-        // Cache it so badge count is accurate
+        // Only handle messages that belong to MY connections
+        const connections = window.AmepleAuth.getConnections();
+        const conn = connections.find(function(c) { return c.id === msg.connection_id; });
+        if (!conn) return; // not my conversation — ignore
+
+        // Cache the message so badge count is accurate
         try {
           const allMessages = JSON.parse(localStorage.getItem('ameple_messages') || '{}');
           if (!allMessages[msg.connection_id]) allMessages[msg.connection_id] = [];
@@ -125,12 +135,10 @@
         refreshChatNavBadge();
 
         // In-app toast + browser notification
-        const connections = window.AmepleAuth.getConnections();
-        const conn = connections.find(function(c) { return c.id === msg.connection_id; });
-        const senderName = conn && conn.receiver
+        const senderName = conn.receiver
           ? ((conn.receiver.first_name || '') + ' ' + (conn.receiver.last_name || '')).trim()
           : 'New message';
-        const avatar = (conn && conn.receiver && conn.receiver.avatar_url) || 'assets/logo.svg';
+        const avatar = (conn.receiver && conn.receiver.avatar_url) || 'assets/logo.svg';
         if (window.notyf) window.notyf.success('💬 ' + senderName + ': ' + msg.content.slice(0, 60));
         showBrowserNotification(senderName, msg.content.slice(0, 100), avatar);
       })

@@ -539,9 +539,28 @@
   // --- Open Chat ---
   async function openChat(connection) {
     activeConnectionId = connection.id;
-    // Clear unread badge for this chat
+
+    // Clear live counter
     unreadCounts[connection.id] = 0;
+
+    // Mark as read in localStorage IMMEDIATELY — before loadConversations() runs,
+    // so the unread badge disappears right away without waiting for the DB round-trip.
+    const _curUserId = (window.AmepleAuth.getCurrentUser() || {}).id;
+    if (_curUserId) {
+      try {
+        const _allMsgs = JSON.parse(localStorage.getItem('ameple_messages') || '{}');
+        if (_allMsgs[connection.id]) {
+          _allMsgs[connection.id].forEach(function(m) {
+            if (!m.is_read && m.sender_id !== _curUserId) m.is_read = true;
+          });
+          localStorage.setItem('ameple_messages', JSON.stringify(_allMsgs));
+          window.AmepleState.messages = _allMsgs;
+        }
+      } catch (e) { /* silent */ }
+    }
+
     loadConversations();
+    if (window.AmepleSidebarBadge) window.AmepleSidebarBadge.refresh();
     const user = connection.receiver || {};
 
     // Show chat window
