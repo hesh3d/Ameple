@@ -1,0 +1,11 @@
+# SQL scripts — keep local only
+*.sql
+
+# Test/debug HTML pages
+test-*.html
+
+# Editor settings
+.vscode/
+
+# Claude Code local settings
+.claude/

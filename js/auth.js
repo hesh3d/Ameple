@@ -1,8 +1,9 @@
 // Ameple — Auth State Management
-// Uses Supabase as primary store, with localStorage cache
+// Supabase is the single source of truth. No data is persisted to localStorage.
+// Only session identity (AUTH_KEY) and ephemeral UI state are kept in localStorage.
 
 (function() {
-  // Initialize global state
+  // Initialize global state (in-memory only — reset on each page load)
   window.AmepleState = window.AmepleState || {
     currentUser: null,
     users: [],
@@ -10,14 +11,13 @@
     activeFilters: {},
     connections: [],
     messages: {},
+    unreadCounts: {},   // { connectionId: number } — populated from DB on load
     currentStatus: '💬 Open to chat'
   };
 
-  const AUTH_KEY = 'ameple_auth';
-  const USER_KEY = 'ameple_user_data';
-  const CONNECTIONS_KEY = 'ameple_connections';
-  const MESSAGES_KEY = 'ameple_messages';
-  const ONBOARDING_KEY = 'ameple_onboarding';
+  // Only these keys remain in localStorage — everything else lives in Supabase
+  const AUTH_KEY      = 'ameple_auth';       // session identity (userId + email)
+  const ONBOARDING_KEY = 'ameple_onboarding'; // temporary form state
 
   // --- LocalStorage Helpers (cache layer) ---
   function saveToStorage(key, data) {
@@ -117,9 +117,8 @@
 
         if (profileError) console.warn('Profile upsert error:', profileError);
 
-        // Cache locally
+        // Store session identity only
         saveToStorage(AUTH_KEY, { userId: data.user.id, email });
-        saveToStorage(USER_KEY, profile);
         window.AmepleState.currentUser = profile;
 
         return { user: profile, error: null };
@@ -208,9 +207,7 @@
         profile.is_online = true;
         profile.last_seen = new Date().toISOString();
 
-        // Cache locally
         saveToStorage(AUTH_KEY, { userId: data.user.id, email });
-        saveToStorage(USER_KEY, profile);
         window.AmepleState.currentUser = profile;
 
         // Start Presence tracking (handles offline on tab close / network drop)
@@ -239,21 +236,16 @@
       }
 
       localStorage.removeItem(AUTH_KEY);
-      localStorage.removeItem(USER_KEY);
-      localStorage.removeItem(CONNECTIONS_KEY);
-      localStorage.removeItem(MESSAGES_KEY);
-      window.AmepleState.currentUser = null;
+      window.AmepleState.currentUser    = null;
+      window.AmepleState.connections    = [];
+      window.AmepleState.messages       = {};
+      window.AmepleState.unreadCounts   = {};
       window.location.href = 'index.html';
     },
 
-    // Get current user from cache (sync) — use fetchCurrentUser for fresh data
+    // Get current user from in-memory state — use fetchCurrentUser for fresh data
     getCurrentUser: function() {
-      if (window.AmepleState.currentUser) return window.AmepleState.currentUser;
-      const user = loadFromStorage(USER_KEY);
-      if (user) {
-        window.AmepleState.currentUser = user;
-      }
-      return user;
+      return window.AmepleState.currentUser || null;
     },
 
     // Fetch fresh user profile from Supabase
@@ -272,7 +264,6 @@
           .single();
 
         if (profile) {
-          saveToStorage(USER_KEY, profile);
           saveToStorage(AUTH_KEY, { userId: profile.id, email: profile.email });
           window.AmepleState.currentUser = profile;
           return profile;
@@ -303,9 +294,8 @@
       const user = this.getCurrentUser();
       if (!user) return;
 
-      // Update local cache immediately
+      // Update in-memory state immediately
       Object.assign(user, updates);
-      saveToStorage(USER_KEY, user);
       window.AmepleState.currentUser = user;
 
       // Sync to Supabase
@@ -336,9 +326,9 @@
       localStorage.removeItem(ONBOARDING_KEY);
     },
 
-    // --- Connections (Supabase primary) ---
+    // --- Connections (Supabase primary, in-memory cache) ---
     getConnections: function() {
-      return loadFromStorage(CONNECTIONS_KEY) || [];
+      return window.AmepleState.connections || [];
     },
 
     fetchConnections: async function() {
@@ -384,12 +374,43 @@
           };
         });
 
-        saveToStorage(CONNECTIONS_KEY, connections);
         window.AmepleState.connections = connections;
+        // Refresh unread counts now that we know our connection IDs
+        this.fetchUnreadCounts().catch(function() {});
         return connections;
       } catch (e) {
         console.warn('fetchConnections error:', e);
         return this.getConnections();
+      }
+    },
+
+    // Fetch unread message counts from DB (no localStorage — always fresh)
+    fetchUnreadCounts: async function() {
+      const sb = await getSupabase();
+      const user = this.getCurrentUser();
+      if (!sb || !user) return;
+
+      const ids = (window.AmepleState.connections || [])
+        .filter(function(c) { return c.status === 'accepted'; })
+        .map(function(c) { return c.id; });
+      if (!ids.length) { window.AmepleState.unreadCounts = {}; return; }
+
+      try {
+        const { data } = await sb
+          .from('messages')
+          .select('connection_id')
+          .in('connection_id', ids)
+          .eq('is_read', false)
+          .neq('sender_id', user.id);
+
+        const counts = {};
+        (data || []).forEach(function(m) {
+          counts[m.connection_id] = (counts[m.connection_id] || 0) + 1;
+        });
+        window.AmepleState.unreadCounts = counts;
+        if (window.AmepleSidebarBadge) window.AmepleSidebarBadge.refresh();
+      } catch (e) {
+        console.warn('fetchUnreadCounts error:', e);
       }
     },
 
@@ -426,7 +447,7 @@
               const connections = this.getConnections();
               if (!connections.some(c => c.id === existing.id)) {
                 connections.push(connection);
-                saveToStorage(CONNECTIONS_KEY, connections);
+                /* connections updated in AmepleState below */
                 window.AmepleState.connections = connections;
               }
               return;
@@ -471,11 +492,10 @@
         }
       }
 
-      // Cache locally
+      // Update in-memory state
       const connections = this.getConnections();
       if (!connections.some(c => c.id === connection.id)) {
         connections.push(connection);
-        saveToStorage(CONNECTIONS_KEY, connections);
         window.AmepleState.connections = connections;
       }
     },
@@ -495,20 +515,18 @@
         }
       }
 
-      // Update local cache
+      // Update in-memory state
       const connections = this.getConnections();
       const idx = connections.findIndex(c => c.id === connectionId);
       if (idx >= 0) {
         Object.assign(connections[idx], updates);
-        saveToStorage(CONNECTIONS_KEY, connections);
         window.AmepleState.connections = connections;
       }
     },
 
-    // --- Messages (Supabase primary) ---
+    // --- Messages (Supabase primary, in-memory only) ---
     getMessages: function(connectionId) {
-      const allMessages = loadFromStorage(MESSAGES_KEY) || {};
-      return allMessages[connectionId] || [];
+      return (window.AmepleState.messages || {})[connectionId] || [];
     },
 
     fetchMessages: async function(connectionId) {
@@ -524,8 +542,7 @@
 
         if (error) throw error;
 
-        // Cache locally
-        const allMessages = loadFromStorage(MESSAGES_KEY) || {};
+        const allMessages = window.AmepleState.messages || {};
         allMessages[connectionId] = data.map(msg => ({
           id: msg.id,
           connection_id: msg.connection_id,
@@ -537,7 +554,6 @@
           is_read: msg.is_read,
           created_at: msg.created_at
         }));
-        saveToStorage(MESSAGES_KEY, allMessages);
         window.AmepleState.messages = allMessages;
         return allMessages[connectionId];
       } catch (e) {
@@ -547,11 +563,10 @@
     },
 
     saveMessage: async function(connectionId, message) {
-      // Cache locally first so UI updates immediately
-      const allMessages = loadFromStorage(MESSAGES_KEY) || {};
+      // Update in-memory state immediately so UI reflects send instantly
+      const allMessages = window.AmepleState.messages || {};
       if (!allMessages[connectionId]) allMessages[connectionId] = [];
       allMessages[connectionId].push(message);
-      saveToStorage(MESSAGES_KEY, allMessages);
       window.AmepleState.messages = allMessages;
 
       const sb = await getSupabase();
@@ -573,12 +588,11 @@
             .single();
 
           if (error) throw error;
-          // Update cached message with DB-generated id and timestamp
+          // Update in-memory message with DB-generated id and timestamp
           message.id = data.id;
           message.created_at = data.created_at;
           const idx = allMessages[connectionId].findIndex(m => m === message);
           if (idx >= 0) allMessages[connectionId][idx] = message;
-          saveToStorage(MESSAGES_KEY, allMessages);
           window.AmepleState.messages = allMessages;
         } catch (e) {
           console.warn('saveMessage error:', e);
@@ -667,7 +681,6 @@
 
           profile.is_online = true;
           saveToStorage(AUTH_KEY, { userId: profile.id, email: profile.email });
-          saveToStorage(USER_KEY, profile);
           window.AmepleState.currentUser = profile;
 
           // Start Presence tracking
@@ -723,7 +736,6 @@
       if (insertError) console.warn('OAuth profile insert error:', insertError);
 
       saveToStorage(AUTH_KEY, { userId: profile.id, email: profile.email });
-      saveToStorage(USER_KEY, profile);
       window.AmepleState.currentUser = profile;
 
       // Start Presence tracking
@@ -803,7 +815,6 @@
     if (user) {
       user.is_online = true;
       user.last_seen = new Date().toISOString();
-      saveToStorage(USER_KEY, user);
 
       const sb = await getSupabase();
       if (sb) {
@@ -824,7 +835,6 @@
       if (user) {
         user.is_online = false;
         user.last_seen = new Date().toISOString();
-        saveToStorage(USER_KEY, user);
 
         // Best-effort DB update (may not complete before unload).
         // Supabase Presence will also detect the disconnect and other
@@ -843,14 +853,8 @@
   window.addEventListener('load', handleTabOpen);
   window.addEventListener('beforeunload', handleTabClose);
 
-  // Initialize state on load from cache
-  const user = window.AmepleAuth.getCurrentUser();
-  if (user) {
-    window.AmepleState.currentUser = user;
-    window.AmepleState.currentStatus = user.current_status || '💬 Open to chat';
-  }
-  window.AmepleState.connections = window.AmepleAuth.getConnections();
-  window.AmepleState.messages = loadFromStorage(MESSAGES_KEY) || {};
+  // State starts empty — populated by fetchCurrentUser / fetchConnections on page load
+  // (Supabase is the single source of truth; no localStorage fallback for data)
 
   // Auto-restore Supabase session on page load (handles OAuth/refresh cases)
   window.AmepleAuth.initSession = async function() {
@@ -882,8 +886,10 @@
     sb.auth.onAuthStateChange(async (event, session) => {
       if (event === 'SIGNED_OUT') {
         localStorage.removeItem(AUTH_KEY);
-        localStorage.removeItem(USER_KEY);
-        window.AmepleState.currentUser = null;
+        window.AmepleState.currentUser  = null;
+        window.AmepleState.connections  = [];
+        window.AmepleState.messages     = {};
+        window.AmepleState.unreadCounts = {};
       }
     });
   };

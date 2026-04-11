@@ -84,12 +84,11 @@
         // Ignore our own messages (already in cache from optimistic update)
         if (msg.sender_id === user.id) return;
 
-        // Add to local cache, avoiding duplicates
-        const allMessages = JSON.parse(localStorage.getItem('ameple_messages') || '{}');
-        if (!allMessages[msg.connection_id]) allMessages[msg.connection_id] = [];
-        if (!allMessages[msg.connection_id].some(m => m.id === msg.id)) {
-          allMessages[msg.connection_id].push(msg);
-          localStorage.setItem('ameple_messages', JSON.stringify(allMessages));
+        // Add to in-memory state, avoiding duplicates
+        if (!window.AmepleState.messages) window.AmepleState.messages = {};
+        if (!window.AmepleState.messages[msg.connection_id]) window.AmepleState.messages[msg.connection_id] = [];
+        if (!window.AmepleState.messages[msg.connection_id].some(m => m.id === msg.id)) {
+          window.AmepleState.messages[msg.connection_id].push(msg);
         }
 
         if (msg.connection_id === activeConnectionId) {
@@ -140,7 +139,6 @@
         const connections = window.AmepleAuth.getConnections();
         if (!connections.some(c => c.id === conn.id)) {
           connections.unshift(newConn);
-          localStorage.setItem('ameple_connections', JSON.stringify(connections));
           window.AmepleState.connections = connections;
         }
 
@@ -208,7 +206,6 @@
     });
     if (!changed) return;
 
-    localStorage.setItem('ameple_connections', JSON.stringify(connections));
     window.AmepleState.connections = connections;
     loadConversations();
 
@@ -244,7 +241,6 @@
     });
     if (!changed) return;
 
-    localStorage.setItem('ameple_connections', JSON.stringify(connections));
     window.AmepleState.connections = connections;
     loadConversations();
 
@@ -543,20 +539,13 @@
     // Clear live counter
     unreadCounts[connection.id] = 0;
 
-    // Mark as read in localStorage IMMEDIATELY — before loadConversations() runs,
+    // Mark as read in AmepleState IMMEDIATELY — before loadConversations() runs,
     // so the unread badge disappears right away without waiting for the DB round-trip.
     const _curUserId = (window.AmepleAuth.getCurrentUser() || {}).id;
-    if (_curUserId) {
-      try {
-        const _allMsgs = JSON.parse(localStorage.getItem('ameple_messages') || '{}');
-        if (_allMsgs[connection.id]) {
-          _allMsgs[connection.id].forEach(function(m) {
-            if (!m.is_read && m.sender_id !== _curUserId) m.is_read = true;
-          });
-          localStorage.setItem('ameple_messages', JSON.stringify(_allMsgs));
-          window.AmepleState.messages = _allMsgs;
-        }
-      } catch (e) { /* silent */ }
+    if (_curUserId && window.AmepleState.messages && window.AmepleState.messages[connection.id]) {
+      window.AmepleState.messages[connection.id].forEach(function(m) {
+        if (!m.is_read && m.sender_id !== _curUserId) m.is_read = true;
+      });
     }
 
     loadConversations();

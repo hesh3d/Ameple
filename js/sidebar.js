@@ -42,30 +42,29 @@
     } catch (e) { /* silent */ }
   }
 
-  // --- Calculate total unread count from localStorage ---
+  // --- Calculate total unread count from AmepleState ---
   function calcTotalUnread() {
     const user = window.AmepleAuth && window.AmepleAuth.getCurrentUser();
     if (!user) return 0;
 
-    // Unread messages
+    // Unread messages — use pre-computed unreadCounts if available, otherwise count from messages
     let msgCount = 0;
-    try {
-      const allMessages = JSON.parse(localStorage.getItem('ameple_messages') || '{}');
-      Object.values(allMessages).forEach(function(msgs) {
+    if (window.AmepleState && window.AmepleState.unreadCounts) {
+      Object.values(window.AmepleState.unreadCounts).forEach(function(n) { msgCount += n; });
+    } else if (window.AmepleState && window.AmepleState.messages) {
+      Object.values(window.AmepleState.messages).forEach(function(msgs) {
         msgs.forEach(function(m) {
           if (!m.is_read && m.sender_id !== user.id) msgCount++;
         });
       });
-    } catch (e) { /* silent */ }
+    }
 
     // Pending incoming connection requests
     let reqCount = 0;
-    try {
-      const connections = JSON.parse(localStorage.getItem('ameple_connections') || '[]');
-      connections.forEach(function(c) {
-        if (c.status === 'pending' && c.requester_id !== user.id) reqCount++;
-      });
-    } catch (e) { /* silent */ }
+    const connections = (window.AmepleState && window.AmepleState.connections) || [];
+    connections.forEach(function(c) {
+      if (c.status === 'pending' && c.requester_id !== user.id) reqCount++;
+    });
 
     return msgCount + reqCount;
   }
@@ -122,15 +121,15 @@
         const conn = connections.find(function(c) { return c.id === msg.connection_id; });
         if (!conn) return; // not my conversation — ignore
 
-        // Cache the message so badge count is accurate
-        try {
-          const allMessages = JSON.parse(localStorage.getItem('ameple_messages') || '{}');
-          if (!allMessages[msg.connection_id]) allMessages[msg.connection_id] = [];
-          if (!allMessages[msg.connection_id].some(function(m) { return m.id === msg.id; })) {
-            allMessages[msg.connection_id].push(msg);
-            localStorage.setItem('ameple_messages', JSON.stringify(allMessages));
-          }
-        } catch (e) { /* silent */ }
+        // Cache the message in AmepleState so badge count is accurate
+        if (!window.AmepleState.messages) window.AmepleState.messages = {};
+        if (!window.AmepleState.messages[msg.connection_id]) window.AmepleState.messages[msg.connection_id] = [];
+        if (!window.AmepleState.messages[msg.connection_id].some(function(m) { return m.id === msg.id; })) {
+          window.AmepleState.messages[msg.connection_id].push(msg);
+          // Also increment unreadCounts for instant badge update
+          if (!window.AmepleState.unreadCounts) window.AmepleState.unreadCounts = {};
+          window.AmepleState.unreadCounts[msg.connection_id] = (window.AmepleState.unreadCounts[msg.connection_id] || 0) + 1;
+        }
 
         refreshChatNavBadge();
 
@@ -163,22 +162,19 @@
           }
         } catch (e) { /* silent */ }
 
-        // Cache request so badge reflects it
-        try {
-          const connections = JSON.parse(localStorage.getItem('ameple_connections') || '[]');
-          if (!connections.some(function(c) { return c.id === conn.id; })) {
-            connections.unshift({
-              id: conn.id,
-              requester_id: conn.sender_id,
-              receiver_id: conn.receiver_id,
-              receiver: { id: conn.sender_id, first_name: senderName.split(' ')[0], last_name: senderName.split(' ').slice(1).join(' '), avatar_url: senderAvatar },
-              status: 'pending',
-              message: conn.message,
-              created_at: conn.created_at
-            });
-            localStorage.setItem('ameple_connections', JSON.stringify(connections));
-          }
-        } catch (e) { /* silent */ }
+        // Cache request in AmepleState so badge reflects it
+        if (!window.AmepleState.connections) window.AmepleState.connections = [];
+        if (!window.AmepleState.connections.some(function(c) { return c.id === conn.id; })) {
+          window.AmepleState.connections.unshift({
+            id: conn.id,
+            requester_id: conn.sender_id,
+            receiver_id: conn.receiver_id,
+            receiver: { id: conn.sender_id, first_name: senderName.split(' ')[0], last_name: senderName.split(' ').slice(1).join(' '), avatar_url: senderAvatar },
+            status: 'pending',
+            message: conn.message,
+            created_at: conn.created_at
+          });
+        }
 
         refreshChatNavBadge();
         if (window.notyf) window.notyf.success('👋 ' + senderName + ' sent you a connection request!');
