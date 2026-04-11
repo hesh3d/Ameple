@@ -98,7 +98,7 @@
   function saveMessagesToCache(connectionId) {
     const msgs = (window.AmepleState.messages || {})[connectionId] || [];
     const all = _readCache('msgs') || {};
-    all[connectionId] = msgs.slice(-4).map(function(m) {
+    all[connectionId] = msgs.slice(-10).map(function(m) {
       return {
         id: m.id, connection_id: m.connection_id, sender_id: m.sender_id,
         content: m.content, type: m.type || 'text',
