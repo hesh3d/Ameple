@@ -3,11 +3,14 @@
 
 (function () {
   let map;
-  let markers = [];
+  let markers = [];          // kept for the render-loop opacity check
+  let markerMap = {};        // userId → maplibregl.Marker  (for O(1) incremental updates)
   let notyf;
   let allUsers = [];
   let isStatusDropdownOpen = false;
   let currentPanel = null; // 'profile' or 'filters'
+
+  const GLOBE_CACHE_KEY = 'ameple_globe_users'; // localStorage stale-while-revalidate cache
 
   const categoryColors = {
     'Tech': '#3B82F6',
@@ -53,38 +56,68 @@
 
   async function loadUsers() {
     // Ensure current user is in memory (handles direct page load / refresh)
-    if (!window.AmepleAuth.getCurrentUser() && window.AmepleAuth.isLoggedIn()) {
-      try {
-        await window.AmepleAuth.fetchCurrentUser();
-      } catch (e) { /* silent */ }
+    let currentUser = window.AmepleAuth.getCurrentUser();
+    if (!currentUser && window.AmepleAuth.isLoggedIn()) {
+      try { currentUser = await window.AmepleAuth.fetchCurrentUser(); } catch (e) { /* silent */ }
     }
 
-    allUsers = [];
-    window.AmepleState.users = allUsers;
-    window.AmepleState.filteredUsers = allUsers;
-    updateUserCount();
+    // ── Step 1: Render from localStorage cache immediately (no loading flash) ──
+    try {
+      const cached = JSON.parse(localStorage.getItem(GLOBE_CACHE_KEY) || 'null');
+      if (cached && Array.isArray(cached) && cached.length > 0) {
+        allUsers = cached;
+        // Force current user as online in the cached list
+        if (currentUser) {
+          const me = allUsers.find(u => u.id === currentUser.id);
+          if (me) { me.is_online = true; me.last_seen = currentUser.last_seen || me.last_seen; }
+          else if (currentUser.latitude != null && currentUser.longitude != null &&
+                   (currentUser.latitude !== 0 || currentUser.longitude !== 0)) {
+            allUsers.unshift(Object.assign({}, currentUser, { is_online: true }));
+          }
+        }
+        window.AmepleState.users = allUsers;
+        window.AmepleState.filteredUsers = allUsers;
+        updateUserCount();
+        updateGlobeAvatars(allUsers);
+      }
+    } catch (e) { /* cache miss — continue to Supabase fetch */ }
 
-    // Fetch real users from Supabase
+    // ── Step 2: Fetch fresh data from Supabase in the background ──
     try {
       const dbUsers = await window.AmepleAuth.fetchAllUsers();
       if (dbUsers && dbUsers.length > 0) {
-        // Only show users who have completed their profile (have location set)
-        allUsers = dbUsers.filter(u => u.latitude != null && u.longitude != null && (u.latitude !== 0 || u.longitude !== 0));
+        allUsers = dbUsers.filter(u =>
+          u.latitude != null && u.longitude != null &&
+          (u.latitude !== 0 || u.longitude !== 0)
+        );
+      } else {
+        allUsers = [];
       }
     } catch (e) {
       console.warn('Failed to fetch users from DB:', e);
+      // Keep cached list, don't flash empty state
     }
 
-    // Add current user if not already in the list
-    const currentUser = window.AmepleAuth.getCurrentUser();
-    if (currentUser && currentUser.latitude != null && currentUser.longitude != null && (currentUser.latitude !== 0 || currentUser.longitude !== 0)) {
-      const exists = allUsers.some(u => u.id === currentUser.id);
-      if (!exists) allUsers.unshift(currentUser);
+    // Ensure current user is in the list and shown as online
+    currentUser = window.AmepleAuth.getCurrentUser();
+    if (currentUser && currentUser.latitude != null && currentUser.longitude != null &&
+        (currentUser.latitude !== 0 || currentUser.longitude !== 0)) {
+      const idx = allUsers.findIndex(u => u.id === currentUser.id);
+      if (idx >= 0) {
+        // Force online for the current user — they opened the page
+        allUsers[idx].is_online = true;
+      } else {
+        allUsers.unshift(Object.assign({}, currentUser, { is_online: true }));
+      }
     }
+
+    // Persist to localStorage for next visit
+    try { localStorage.setItem(GLOBE_CACHE_KEY, JSON.stringify(allUsers)); } catch (e) { /* quota */ }
 
     window.AmepleState.users = allUsers;
     window.AmepleState.filteredUsers = allUsers;
     updateUserCount();
+    // Incremental update — only adds/removes/changes what's different, no full flash
     updateGlobeAvatars(allUsers);
 
     // Focus on a specific user if ?userId= param is present
@@ -94,7 +127,6 @@
       if (target && target.latitude != null && target.longitude != null) {
         setTimeout(function() {
           map.flyTo({ center: [target.longitude, target.latitude], zoom: 5, essential: true });
-          // Open their profile panel after the fly animation starts
           setTimeout(function() { openProfilePanel(target); }, 800);
         }, 300);
       }
@@ -126,14 +158,13 @@
         table: 'users'
       }, (payload) => {
         const newUser = payload.new;
-        // Only add if they have valid coordinates
         if (newUser.latitude == null || newUser.longitude == null ||
             (newUser.latitude === 0 && newUser.longitude === 0)) return;
-        // Avoid duplicates
         if (allUsers.some(u => u.id === newUser.id)) return;
 
         allUsers.push(newUser);
         window.AmepleState.users = allUsers;
+        saveGlobeCache();
         applyCurrentFilters();
       })
 
@@ -144,15 +175,19 @@
         table: 'users'
       }, (payload) => {
         const updated = payload.new;
+        // Never mark current user as offline via realtime — they're here right now
+        const me = window.AmepleAuth.getCurrentUser();
+        if (me && updated.id === me.id) updated.is_online = true;
+
         const idx = allUsers.findIndex(u => u.id === updated.id);
         if (idx >= 0) {
           Object.assign(allUsers[idx], updated);
         } else if (updated.latitude != null && updated.longitude != null &&
                    (updated.latitude !== 0 || updated.longitude !== 0)) {
-          // User now has coordinates — add them
           allUsers.push(updated);
         }
         window.AmepleState.users = allUsers;
+        saveGlobeCache();
         applyCurrentFilters();
       })
 
@@ -164,19 +199,30 @@
       const user = allUsers.find(u => u.id === userId);
       if (user) {
         user.is_online = true;
+        saveGlobeCache();
         applyCurrentFilters();
       }
     });
 
     window.addEventListener('ameple:user-offline', function(e) {
       const userId = e.detail.userId;
+      // Never mark the current tab's user as offline from a presence event
+      const me = window.AmepleAuth.getCurrentUser();
+      if (me && userId === me.id) return;
+
       const user = allUsers.find(u => u.id === userId);
       if (user) {
         user.is_online = false;
         if (e.detail.last_seen) user.last_seen = e.detail.last_seen;
+        saveGlobeCache();
         applyCurrentFilters();
       }
     });
+  }
+
+  // Persist allUsers to localStorage (fire-and-forget, quota-safe)
+  function saveGlobeCache() {
+    try { localStorage.setItem(GLOBE_CACHE_KEY, JSON.stringify(allUsers)); } catch (e) { /* quota */ }
   }
 
   // Re-render globe with the currently active filters
@@ -303,54 +349,80 @@
   }
 
 
-  // --- Update Globe Avatar Markers (replaces Dots) ---
+  // --- Build a single avatar marker DOM element ---
+  function buildMarkerEl(d) {
+    const el = document.createElement('div');
+    el.className = 'ameple-avatar-marker' + (d.is_online ? ' online' : '');
+    el.dataset.userId = d.id;
+    el.dataset.online = d.is_online ? '1' : '0';
+
+    const img = document.createElement('img');
+    img.src = d.avatar_url || 'assets/default-avatar.svg';
+    img.alt = d.first_name || '';
+    img.style.cssText = 'width:32px;height:32px;border-radius:10px;object-fit:cover;border:2px solid #1A1A2E;display:block;box-shadow:3px 3px 0px #1A1A2E;';
+    img.onerror = function () { this.src = 'assets/default-avatar.svg'; };
+    el.appendChild(img);
+
+    if (d.is_online) {
+      const dot = document.createElement('span');
+      dot.style.cssText = 'position:absolute;bottom:-1px;right:-1px;width:12px;height:12px;background:#22C55E;border-radius:50%;border:1.5px solid #1A1A2E;z-index:2;';
+      el.appendChild(dot);
+    }
+
+    const lastSeenText = d.is_online ? 'Online' : window.AmepleAuth.formatTimeAgo(d.last_seen);
+    const tip = document.createElement('div');
+    tip.className = 'avatar-tooltip';
+    tip.innerHTML = '<strong>' + (d.first_name || '') + ' ' + (d.last_name || '') + '</strong>'
+        + '<span>' + (d.job_name || '') + '</span>'
+        + '<span style="font-size:10px; opacity:0.8; margin-top:2px;">' + lastSeenText + '</span>';
+    el.appendChild(tip);
+
+    el.addEventListener('click', function (e) { e.stopPropagation(); openProfilePanel(d); });
+    return el;
+  }
+
+  // --- Incremental avatar marker update — no full clear/redraw flicker ---
   function updateGlobeAvatars(users) {
     if (!map) return;
-    console.log('[Ameple] Rendering', users.length, 'avatar markers on map');
 
-    // Clear old markers
-    markers.forEach(function (m) { m.remove(); });
-    markers = [];
+    const incomingIds = new Set(users.map(function(u) { return u.id; }));
 
-    users.forEach(function (d) {
-      let el = document.createElement('div');
-
-      el.className = 'ameple-avatar-marker' + (d.is_online ? ' online' : '');
-
-      // Avatar image
-      const img = document.createElement('img');
-      img.src = d.avatar_url || 'assets/default-avatar.svg';
-      img.alt = d.first_name || '';
-      img.width = 32;
-      img.height = 32;
-      // Using .style properties or just classes; update internal styles for cartoon theme
-      img.style.cssText = 'width:32px;height:32px;border-radius:10px;object-fit:cover;border:2px solid #1A1A2E;display:block;box-shadow:3px 3px 0px #1A1A2E;';
-      img.onerror = function () { this.src = 'assets/default-avatar.svg'; };
-      el.appendChild(img);
-
-      // Online dot
-      if (d.is_online) {
-        const dot = document.createElement('span');
-        dot.style.cssText = 'position:absolute;bottom:-1px;right:-1px;width:12px;height:12px;background:#22C55E;border-radius:50%;border:1.5px solid #1A1A2E;z-index:2;';
-        el.appendChild(dot);
+    // Remove markers for users no longer in the list
+    Object.keys(markerMap).forEach(function(id) {
+      if (!incomingIds.has(id)) {
+        markerMap[id].remove();
+        delete markerMap[id];
       }
-
-      // Tooltip
-      const lastSeenText = d.is_online ? 'Online' : window.AmepleAuth.formatTimeAgo(d.last_seen);
-      const tip = document.createElement('div');
-      tip.className = 'avatar-tooltip';
-      tip.innerHTML = '<strong>' + (d.first_name || '') + ' ' + (d.last_name || '') + '</strong>'
-          + '<span>' + (d.job_name || '') + '</span>'
-          + '<span style="font-size:10px; opacity:0.8; margin-top:2px;">' + lastSeenText + '</span>';
-      el.appendChild(tip);
-
-      el.addEventListener('click', function (e) { e.stopPropagation(); openProfilePanel(d); });
-
-      const m = new maplibregl.Marker({ element: el })
-        .setLngLat([d.longitude, d.latitude])
-        .addTo(map);
-      markers.push(m);
     });
+
+    // Add new markers or refresh those whose online status changed
+    users.forEach(function(d) {
+      const existing = markerMap[d.id];
+      if (existing) {
+        const el = existing.getElement();
+        const wasOnline = el.dataset.online === '1';
+        if (wasOnline !== !!d.is_online) {
+          // Online status flipped — rebuild this marker in-place
+          existing.remove();
+          const newEl = buildMarkerEl(d);
+          const m = new maplibregl.Marker({ element: newEl })
+            .setLngLat([d.longitude, d.latitude])
+            .addTo(map);
+          markerMap[d.id] = m;
+        }
+        // else: no visible change — keep the existing marker as-is (zero flicker)
+      } else {
+        // New user — add marker
+        const el = buildMarkerEl(d);
+        const m = new maplibregl.Marker({ element: el })
+          .setLngLat([d.longitude, d.latitude])
+          .addTo(map);
+        markerMap[d.id] = m;
+      }
+    });
+
+    // Keep markers array in sync for the render-loop opacity/visibility check
+    markers = Object.values(markerMap);
   }
 
 

@@ -16,8 +16,9 @@
   };
 
   // Only these keys remain in localStorage — everything else lives in Supabase
-  const AUTH_KEY      = 'ameple_auth';       // session identity (userId + email)
-  const ONBOARDING_KEY = 'ameple_onboarding'; // temporary form state
+  const AUTH_KEY       = 'ameple_auth';        // session identity (userId + email)
+  const ONBOARDING_KEY = 'ameple_onboarding';  // temporary form state
+  const PROFILE_KEY    = 'ameple_profile';     // cached user profile for instant load
 
   // --- LocalStorage Helpers (cache layer) ---
   function saveToStorage(key, data) {
@@ -119,6 +120,7 @@
 
         // Store session identity only
         saveToStorage(AUTH_KEY, { userId: data.user.id, email });
+        saveToStorage(PROFILE_KEY, profile);
         window.AmepleState.currentUser = profile;
 
         return { user: profile, error: null };
@@ -208,6 +210,7 @@
         profile.last_seen = new Date().toISOString();
 
         saveToStorage(AUTH_KEY, { userId: data.user.id, email });
+        saveToStorage(PROFILE_KEY, profile);
         window.AmepleState.currentUser = profile;
 
         // Start Presence tracking (handles offline on tab close / network drop)
@@ -236,6 +239,8 @@
       }
 
       localStorage.removeItem(AUTH_KEY);
+      localStorage.removeItem(PROFILE_KEY);
+      localStorage.removeItem('ameple_globe_users');
       window.AmepleState.currentUser    = null;
       window.AmepleState.connections    = [];
       window.AmepleState.messages       = {};
@@ -243,9 +248,16 @@
       window.location.href = 'index.html';
     },
 
-    // Get current user from in-memory state — use fetchCurrentUser for fresh data
+    // Get current user from in-memory state — falls back to localStorage cache
     getCurrentUser: function() {
-      return window.AmepleState.currentUser || null;
+      if (window.AmepleState.currentUser) return window.AmepleState.currentUser;
+      // Restore from cache on fresh page load / refresh (instant, no Supabase call)
+      const cached = loadFromStorage(PROFILE_KEY);
+      if (cached) {
+        window.AmepleState.currentUser = cached;
+        return cached;
+      }
+      return null;
     },
 
     // Fetch fresh user profile from Supabase
@@ -265,6 +277,7 @@
 
         if (profile) {
           saveToStorage(AUTH_KEY, { userId: profile.id, email: profile.email });
+          saveToStorage(PROFILE_KEY, profile);
           window.AmepleState.currentUser = profile;
           return profile;
         }
@@ -297,6 +310,11 @@
       // Update in-memory state immediately
       Object.assign(user, updates);
       window.AmepleState.currentUser = user;
+
+      // Persist to localStorage cache (skip large base64 avatar data)
+      const toCache = Object.assign({}, user);
+      if (toCache.avatar_url && toCache.avatar_url.startsWith('data:')) delete toCache.avatar_url;
+      saveToStorage(PROFILE_KEY, toCache);
 
       // Sync to Supabase
       const sb = await getSupabase();
@@ -680,6 +698,7 @@
 
           profile.is_online = true;
           saveToStorage(AUTH_KEY, { userId: profile.id, email: profile.email });
+          saveToStorage(PROFILE_KEY, profile);
           window.AmepleState.currentUser = profile;
 
           // Start Presence tracking
@@ -735,6 +754,7 @@
       if (insertError) console.warn('OAuth profile insert error:', insertError);
 
       saveToStorage(AUTH_KEY, { userId: profile.id, email: profile.email });
+      saveToStorage(PROFILE_KEY, profile);
       window.AmepleState.currentUser = profile;
 
       // Start Presence tracking
@@ -810,15 +830,28 @@
     tabsCount++;
     localStorage.setItem(TABS_KEY, tabsCount.toString());
 
-    const user = window.AmepleAuth.getCurrentUser();
+    // Try in-memory / localStorage cache first for instant access
+    let user = window.AmepleAuth.getCurrentUser();
+
+    // If still no user in cache, wait for Supabase session (OAuth / refresh cases)
+    if (!user && window.AmepleAuth.isLoggedIn()) {
+      try { user = await window.AmepleAuth.fetchCurrentUser(); } catch (e) { /* silent */ }
+    }
+
     if (user) {
       user.is_online = true;
       user.last_seen = new Date().toISOString();
 
       const sb = await getSupabase();
       if (sb) {
-        await sb.from('users').update({ is_online: true, last_seen: user.last_seen }).eq('id', user.id);
-        // Set up Presence so offline is detected even on hard close / network drop
+        // Update DB — don't await so the page doesn't stall
+        sb.from('users')
+          .update({ is_online: true, last_seen: user.last_seen })
+          .eq('id', user.id)
+          .then(function() {})
+          .catch(function() {});
+
+        // Start Presence channel so offline is detected on tab close / network drop
         setupPresenceChannel(user.id);
       }
     }

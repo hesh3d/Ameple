@@ -234,27 +234,35 @@
 
   <script src="js/lib/supabase.js"></script>
   <script src="js/auth.js"></script>
-    <script>
+  <script src="js/sidebar.js"></script>
+  <script src="js/lib/emoji.js"></script>
+  <script>
+    // Redirect immediately if not logged in (synchronous localStorage check)
+    if (!window.AmepleAuth.isLoggedIn()) {
+      window.location.href = 'index.html';
+    }
+
     document.addEventListener('DOMContentLoaded', async function() {
       var notyf = new Notyf({ duration: 3000, position: { x: 'right', y: 'top' } });
 
+      // ── Render user data into the settings fields ──────────────────────────
       function renderSettings(user) {
         if (!user) return;
-        document.getElementById('settings-email').textContent = user.email || '—';
-        document.getElementById('settings-name').textContent = (user.first_name || '') + ' ' + (user.last_name || '');
+        document.getElementById('settings-email').textContent   = user.email || '—';
+        document.getElementById('settings-name').textContent    = ((user.first_name || '') + ' ' + (user.last_name || '')).trim() || '—';
         document.getElementById('settings-country').textContent = (user.flag || '') + ' ' + (user.country || '—');
-        document.getElementById('settings-joined').textContent = user.created_at
+        document.getElementById('settings-joined').textContent  = user.created_at
           ? new Date(user.created_at).toLocaleDateString() : '—';
 
         var avatar = document.getElementById('sidebar-user-avatar');
         if (avatar && user.avatar_url) avatar.src = user.avatar_url;
       }
 
-      // Render from cache first
+      // ── Step 1: Instant render from localStorage cache (no flash) ──────────
       var user = window.AmepleAuth.getCurrentUser();
-      renderSettings(user);
+      if (user) renderSettings(user);
 
-      // Then refresh from Supabase
+      // ── Step 2: Background refresh from Supabase ───────────────────────────
       try {
         var freshUser = await window.AmepleAuth.fetchCurrentUser();
         if (freshUser) renderSettings(freshUser);
@@ -262,27 +270,41 @@
         console.warn('Settings: failed to refresh user:', e);
       }
 
-      // Toggles
+      // ── Toggle preferences — persisted in localStorage ─────────────────────
+      var PREFS_KEY = 'ameple_settings_prefs';
+      var prefs = {};
+      try { prefs = JSON.parse(localStorage.getItem(PREFS_KEY) || '{}'); } catch (e) {}
+
       document.querySelectorAll('.toggle').forEach(function(toggle) {
+        var key = toggle.dataset.pref;
+        // Restore saved state
+        if (key && prefs[key]) toggle.classList.add('active');
+
         toggle.addEventListener('click', function() {
           this.classList.toggle('active');
+          if (key) {
+            prefs[key] = this.classList.contains('active');
+            try { localStorage.setItem(PREFS_KEY, JSON.stringify(prefs)); } catch (e) {}
+          }
           notyf.success('Setting updated');
         });
       });
 
-      // Sign out
+      // ── Sign out ───────────────────────────────────────────────────────────
       document.getElementById('btn-signout').addEventListener('click', function() {
         if (confirm('Are you sure you want to sign out?')) {
           window.AmepleAuth.signOut();
         }
       });
 
-      // Clear data
+      // ── Clear local data ───────────────────────────────────────────────────
       document.getElementById('btn-clear-data').addEventListener('click', function() {
-        if (confirm('This will delete all local data including messages. Are you sure?')) {
+        if (confirm('This will clear all locally cached data. You will stay logged in. Continue?')) {
+          // Clear only app caches — keep auth session intact
+          var authKey = localStorage.getItem('ameple_auth');
           localStorage.clear();
-          notyf.success('All data cleared');
-          setTimeout(function() { window.location.href = 'index.html'; }, 1000);
+          if (authKey) localStorage.setItem('ameple_auth', authKey);
+          notyf.success('Local cache cleared');
         }
       });
     });
@@ -296,9 +318,6 @@
       <button class="btn btn-primary btn-sm" id="btn-save-custom-status">Save</button>
     </div>
   </div>
-
-  <script src="js/sidebar.js"></script>
-  <script src="js/lib/emoji.js"></script>
 </body>
 </html>
 

@@ -17,54 +17,50 @@
       return;
     }
 
-    // Try in-memory state first (already set if coming from same-session navigation)
+    // getCurrentUser() now returns cached localStorage data instantly on page load
     let user = window.AmepleAuth.getCurrentUser();
 
-    // If in-memory state is empty, fetch fresh from Supabase (e.g. direct page load / refresh)
-    if (!user) {
-      try {
-        user = await window.AmepleAuth.fetchCurrentUser();
-      } catch (e) {
-        console.warn('Failed to fetch user from Supabase:', e);
+    if (user) {
+      // Instant render from cache — no loading spinner
+      normalizeJobs(user);
+      setupSidebarAvatar(user);
+      renderProfile(user);
+      initSelectionModal();
+    }
+
+    // Always refresh from Supabase in the background (stale-while-revalidate)
+    try {
+      const freshUser = await window.AmepleAuth.fetchCurrentUser();
+      if (!freshUser) {
+        // No session at all — redirect
+        window.location.href = 'index.html';
+        return;
       }
+      normalizeJobs(freshUser);
+      if (!user) {
+        // First load with no cache — render now
+        initSelectionModal();
+      }
+      user = freshUser;
+      setupSidebarAvatar(user);
+      renderProfile(user);
+    } catch (e) {
+      console.warn('Failed to refresh profile from Supabase:', e);
       if (!user) {
         window.location.href = 'index.html';
         return;
       }
     }
+  });
 
-    // Render from cache first
-    setupSidebarAvatar(user);
-    renderProfile(user);
-    initSelectionModal();
-
-    // Then refresh from Supabase (only if we didn't just fetch)
-    try {
-      const freshUser = await window.AmepleAuth.fetchCurrentUser();
-      if (freshUser) {
-        user = freshUser;
-        // Initialize jobs if it's a string from old version
-        if (typeof user.jobs === 'string' || (!user.jobs && user.job_name)) {
-          user.jobs = user.job_name ? [user.job_name] : [];
-          window.AmepleAuth.updateUser({ jobs: user.jobs });
-        } else if (!user.jobs) {
-          user.jobs = [];
-        }
-        setupSidebarAvatar(user);
-        renderProfile(user);
-      }
-    } catch (e) {
-      console.warn('Failed to refresh profile from Supabase:', e);
-    }
-
-    // Initialize jobs if it's a string from old version (for cached user)
+  function normalizeJobs(user) {
     if (typeof user.jobs === 'string' || (!user.jobs && user.job_name)) {
       user.jobs = user.job_name ? [user.job_name] : [];
       window.AmepleAuth.updateUser({ jobs: user.jobs });
     } else if (!user.jobs) {
       user.jobs = [];
     }
-  });
+  }
 
   function setupSidebarAvatar(user) {
     const avatar = document.getElementById('sidebar-user-avatar');
