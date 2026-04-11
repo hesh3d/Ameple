@@ -749,11 +749,23 @@
     // Attach scroll-to-top listener for loading older messages
     setupLoadMoreOnScroll(connection.id);
 
-    // Silently fetch the latest 20 messages from Supabase (no loading bar)
+    // Silently fetch the latest 20 messages from Supabase in the background
     try {
+      // Capture last rendered message ID before fetch — to detect if anything new arrived
+      const before = window.AmepleAuth.getMessages(connection.id);
+      const lastIdBefore = before.length ? before[before.length - 1].id : null;
+
       await window.AmepleAuth.fetchMessages(connection.id, 20);
       fetchedConnections.add(connection.id);
-      renderMessages(connection.id);
+
+      // Only re-render if the last message changed (new content at the bottom)
+      // If the cache already matched Supabase, the user sees zero movement
+      const after = window.AmepleAuth.getMessages(connection.id);
+      const lastIdAfter = after.length ? after[after.length - 1].id : null;
+      if (lastIdAfter !== lastIdBefore) {
+        renderMessages(connection.id);
+      }
+
       saveMessagesToCache(connection.id);
       saveConversationsToCache();
       window.AmepleAuth.markMessagesRead(connection.id);
@@ -770,14 +782,15 @@
     const container = document.getElementById('chat-messages');
     if (!container) return;
 
-    // Remove any previous listener by replacing with a fresh clone
-    const fresh = container.cloneNode(true);
-    container.parentNode.replaceChild(fresh, container);
-
-    fresh.addEventListener('scroll', function() {
-      if (fresh.scrollTop > 60) return; // only trigger near the very top
+    // Remove previous listener via stored reference (no cloneNode — avoids content flash)
+    if (container._scrollHandler) {
+      container.removeEventListener('scroll', container._scrollHandler);
+    }
+    container._scrollHandler = function() {
+      if (container.scrollTop > 60) return;
       loadOlderMessages(connectionId);
-    });
+    };
+    container.addEventListener('scroll', container._scrollHandler);
   }
 
   async function loadOlderMessages(connectionId) {
