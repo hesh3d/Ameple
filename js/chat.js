@@ -72,6 +72,9 @@
     const cached = _readCache('conv');
     if (!cached || !cached.length) return false;
     window.AmepleState.connections = cached.map(function(c) {
+      // Derive _lastMsgAt from cached last message or connection time
+      c._lastMsgAt = c._lastMsg ? c._lastMsg.created_at : c.created_at;
+
       // Seed the last-message preview into messages state so the list renders correctly
       if (c._lastMsg) {
         if (!window.AmepleState.messages) window.AmepleState.messages = {};
@@ -82,6 +85,13 @@
       return c;
     });
     return true;
+  }
+
+  // Update _lastMsgAt on the connection object so sorting always has the right timestamp
+  function touchConnectionTime(connectionId, timestamp) {
+    const conns = window.AmepleState.connections || [];
+    const conn = conns.find(function(c) { return c.id === connectionId; });
+    if (conn) conn._lastMsgAt = timestamp || new Date().toISOString();
   }
 
   // Save last 4 messages of a conversation to localStorage
@@ -173,7 +183,22 @@
 
     // Fetch connections independently — UI updates once ready
     try {
+      // Preserve _lastMsgAt from cached connections before fetchConnections() overwrites the list
+      const prevTimes = {};
+      (window.AmepleState.connections || []).forEach(function(c) {
+        if (c._lastMsgAt) prevTimes[c.id] = c._lastMsgAt;
+      });
+
       await window.AmepleAuth.fetchConnections();
+
+      // Restore _lastMsgAt on the fresh connection objects (Supabase doesn't store this)
+      (window.AmepleState.connections || []).forEach(function(c) {
+        const msgs = (window.AmepleState.messages || {})[c.id] || [];
+        c._lastMsgAt = msgs.length
+          ? msgs[msgs.length - 1].created_at
+          : (prevTimes[c.id] || c.created_at);
+      });
+
       loadConversations();
       loadRequests();
       saveConversationsToCache(); // persist fresh data for next page load
@@ -230,6 +255,7 @@
         if (!window.AmepleState.messages[msg.connection_id].some(m => m.id === msg.id)) {
           window.AmepleState.messages[msg.connection_id].push(msg);
         }
+        touchConnectionTime(msg.connection_id, msg.created_at);
 
         if (msg.connection_id === activeConnectionId) {
           // Active chat: render immediately and mark as read
@@ -435,6 +461,14 @@
         if (!otherId || seenUserIds[otherId]) return false;
         seenUserIds[otherId] = true;
         return true;
+      })
+      .sort(function(a, b) {
+        // Priority: in-memory last message → _lastMsgAt (set by touchConnectionTime) → connection time
+        const msgsA = window.AmepleAuth.getMessages(a.id);
+        const msgsB = window.AmepleAuth.getMessages(b.id);
+        const timeA = msgsA.length ? msgsA[msgsA.length - 1].created_at : (a._lastMsgAt || a.created_at);
+        const timeB = msgsB.length ? msgsB[msgsB.length - 1].created_at : (b._lastMsgAt || b.created_at);
+        return new Date(timeB) - new Date(timeA);
       });
 
     const list = document.getElementById('conversation-list');
@@ -927,6 +961,7 @@
     input.focus();
 
     await window.AmepleAuth.saveMessage(activeConnectionId, message);
+    touchConnectionTime(activeConnectionId, message.created_at);
     renderMessages(activeConnectionId);
     loadConversations(); // Update preview
     // Persist sent message in localStorage cache
