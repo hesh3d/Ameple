@@ -52,6 +52,13 @@
   });
 
   async function loadUsers() {
+    // Ensure current user is in memory (handles direct page load / refresh)
+    if (!window.AmepleAuth.getCurrentUser() && window.AmepleAuth.isLoggedIn()) {
+      try {
+        await window.AmepleAuth.fetchCurrentUser();
+      } catch (e) { /* silent */ }
+    }
+
     allUsers = [];
     window.AmepleState.users = allUsers;
     window.AmepleState.filteredUsers = allUsers;

@@ -465,7 +465,6 @@
               } else {
                 connections.push(connection);
               }
-              saveToStorage(CONNECTIONS_KEY, connections);
               window.AmepleState.connections = connections;
               return;
             }

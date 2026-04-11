@@ -11,10 +11,26 @@
       position: { x: 'right', y: 'top' }
     });
 
-    let user = window.AmepleAuth.getCurrentUser();
-    if (!user) {
+    // Check localStorage auth token first (synchronous) — if not present, redirect immediately
+    if (!window.AmepleAuth.isLoggedIn()) {
       window.location.href = 'index.html';
       return;
+    }
+
+    // Try in-memory state first (already set if coming from same-session navigation)
+    let user = window.AmepleAuth.getCurrentUser();
+
+    // If in-memory state is empty, fetch fresh from Supabase (e.g. direct page load / refresh)
+    if (!user) {
+      try {
+        user = await window.AmepleAuth.fetchCurrentUser();
+      } catch (e) {
+        console.warn('Failed to fetch user from Supabase:', e);
+      }
+      if (!user) {
+        window.location.href = 'index.html';
+        return;
+      }
     }
 
     // Render from cache first
@@ -22,7 +38,7 @@
     renderProfile(user);
     initSelectionModal();
 
-    // Then refresh from Supabase
+    // Then refresh from Supabase (only if we didn't just fetch)
     try {
       const freshUser = await window.AmepleAuth.fetchCurrentUser();
       if (freshUser) {

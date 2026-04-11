@@ -28,6 +28,18 @@
     const sb = await window.AmepleSupabaseReady;
     if (!sb) return;
 
+    // Ensure current user is loaded into memory (handles direct page load / refresh)
+    if (!window.AmepleAuth.getCurrentUser() && window.AmepleAuth.isLoggedIn()) {
+      try {
+        await window.AmepleAuth.fetchCurrentUser();
+      } catch (e) {
+        console.warn('Failed to fetch current user:', e);
+      }
+    }
+
+    // If still no user, nothing to do
+    if (!window.AmepleAuth.getCurrentUser()) return;
+
     // Start realtime subscriptions IMMEDIATELY (before fetching connections).
     // This ensures no incoming messages are missed while the UI is loading.
     setupRealtimeSubscriptions();

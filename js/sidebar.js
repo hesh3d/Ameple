@@ -92,6 +92,11 @@
     const sb = window.AmepleSupabase || (window.AmepleSupabaseReady && await window.AmepleSupabaseReady);
     if (!sb) return;
 
+    // Ensure user is loaded into memory (handles direct page load / refresh)
+    if (window.AmepleAuth && !window.AmepleAuth.getCurrentUser() && window.AmepleAuth.isLoggedIn()) {
+      try { await window.AmepleAuth.fetchCurrentUser(); } catch (e) { /* silent */ }
+    }
+
     const user = window.AmepleAuth && window.AmepleAuth.getCurrentUser();
     if (!user) return;
 
