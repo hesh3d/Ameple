@@ -4,6 +4,132 @@
   let notyf;
   let activeConnectionId = null;
 
+  // ── localStorage cache (stale-while-revalidate) ────────────────────────────
+  const CACHE_V = '2';
+
+  // Read the userId from localStorage auth token (synchronous — no Supabase needed)
+  function _cachedUserId() {
+    try {
+      const a = JSON.parse(localStorage.getItem('ameple_auth') || 'null');
+      return (a && a.userId) || 'anon';
+    } catch (e) { return 'anon'; }
+  }
+
+  function _readCache(key) {
+    try {
+      const raw = localStorage.getItem('ameple_c_' + CACHE_V + '_' + key + '_' + _cachedUserId());
+      if (!raw) return null;
+      return JSON.parse(raw);
+    } catch (e) { return null; }
+  }
+
+  function _writeCache(key, data) {
+    try {
+      localStorage.setItem(
+        'ameple_c_' + CACHE_V + '_' + key + '_' + _cachedUserId(),
+        JSON.stringify(data)
+      );
+    } catch (e) { /* quota exceeded — silent */ }
+  }
+
+  // Save accepted connections list + last-message previews to localStorage
+  function saveConversationsToCache() {
+    const userId = _cachedUserId();
+    if (userId === 'anon') return;
+    const connections = window.AmepleAuth.getConnections();
+    const msgs = window.AmepleState.messages || {};
+    const data = connections
+      .filter(function(c) { return c.status === 'accepted'; })
+      .map(function(c) {
+        const cMsgs = msgs[c.id] || [];
+        const lastMsg = cMsgs.length ? cMsgs[cMsgs.length - 1] : null;
+        const r = c.receiver || {};
+        return {
+          id: c.id,
+          requester_id: c.requester_id,
+          receiver_id: c.receiver_id,
+          status: c.status,
+          message: c.message,
+          created_at: c.created_at,
+          receiver: {
+            id: r.id, first_name: r.first_name, last_name: r.last_name,
+            avatar_url: r.avatar_url, is_online: r.is_online, last_seen: r.last_seen,
+            job_name: r.job_name, job_emoji: r.job_emoji,
+            latitude: r.latitude, longitude: r.longitude
+          },
+          _lastMsg: lastMsg ? {
+            id: lastMsg.id, sender_id: lastMsg.sender_id,
+            content: lastMsg.content, is_read: lastMsg.is_read,
+            created_at: lastMsg.created_at, type: lastMsg.type || 'text'
+          } : null
+        };
+      });
+    _writeCache('conv', data);
+  }
+
+  // Restore cached connections into AmepleState (instant render before Supabase responds)
+  function loadConversationsFromCache() {
+    const cached = _readCache('conv');
+    if (!cached || !cached.length) return false;
+    window.AmepleState.connections = cached.map(function(c) {
+      // Seed the last-message preview into messages state so the list renders correctly
+      if (c._lastMsg) {
+        if (!window.AmepleState.messages) window.AmepleState.messages = {};
+        if (!window.AmepleState.messages[c.id] || !window.AmepleState.messages[c.id].length) {
+          window.AmepleState.messages[c.id] = [c._lastMsg];
+        }
+      }
+      return c;
+    });
+    return true;
+  }
+
+  // Save last 4 messages of a conversation to localStorage
+  function saveMessagesToCache(connectionId) {
+    const msgs = (window.AmepleState.messages || {})[connectionId] || [];
+    const all = _readCache('msgs') || {};
+    all[connectionId] = msgs.slice(-4).map(function(m) {
+      return {
+        id: m.id, connection_id: m.connection_id, sender_id: m.sender_id,
+        content: m.content, type: m.type || 'text',
+        call_type: m.call_type || null, duration: m.duration || null,
+        is_read: m.is_read, created_at: m.created_at
+      };
+    });
+    _writeCache('msgs', all);
+  }
+
+  // Restore last 4 cached messages for a conversation into AmepleState
+  function loadMessagesFromCache(connectionId) {
+    const all = _readCache('msgs') || {};
+    const cached = all[connectionId];
+    if (!cached || !cached.length) return false;
+    if (!window.AmepleState.messages) window.AmepleState.messages = {};
+    // Always overwrite with the dedicated 4-message cache (more complete than the 1-msg preview)
+    window.AmepleState.messages[connectionId] = cached;
+    return true;
+  }
+
+  // Track which chats have been fully fetched from Supabase this page session
+  const fetchedConnections = new Set();
+
+  // Show/hide the animated loading bar above the messages area
+  function showMessagesLoading(show) {
+    let bar = document.getElementById('messages-loading-bar');
+    if (!bar) {
+      bar = document.createElement('div');
+      bar.id = 'messages-loading-bar';
+      bar.className = 'messages-loading-bar';
+      bar.style.display = 'none';
+      const container = document.getElementById('chat-messages');
+      if (container && container.parentNode) {
+        container.parentNode.insertBefore(bar, container);
+      }
+    }
+    bar.style.display = show ? 'block' : 'none';
+  }
+  // ───────────────────────────────────────────────────────────────────────────
+
   document.addEventListener('DOMContentLoaded', function() {
     notyf = new Notyf({
       duration: 3000,
@@ -17,10 +143,11 @@
     setupEmojiPicker();
     setupCalling();
 
-    // Load from cache first, then refresh from Supabase
-    loadConversations();
+    // ── Stale-while-revalidate: show cached data instantly, fetch fresh in background
+    loadConversationsFromCache(); // restore connections + last-msg previews from localStorage
+    loadConversations();          // render the list immediately from cache
     loadRequests();
-    refreshFromSupabase();
+    refreshFromSupabase();        // fetch fresh data from Supabase & update cache
   });
 
   async function refreshFromSupabase() {
@@ -49,6 +176,7 @@
       await window.AmepleAuth.fetchConnections();
       loadConversations();
       loadRequests();
+      saveConversationsToCache(); // persist fresh data for next page load
     } catch (e) {
       console.warn('Failed to refresh from Supabase:', e);
     }
@@ -120,6 +248,9 @@
           }
         }
         loadConversations();
+        // Persist the new message in localStorage cache
+        saveMessagesToCache(msg.connection_id);
+        saveConversationsToCache();
         if (window.AmepleSidebarBadge) window.AmepleSidebarBadge.refresh();
       })
 
@@ -591,18 +722,28 @@
     const videoBtn = document.querySelector('[title="Video Call"]');
     if (videoBtn) videoBtn.onclick = () => startCall('video');
 
-    // Load messages from cache first
+    // Show cached messages instantly (last 4 from localStorage, or whatever is in memory)
+    loadMessagesFromCache(connection.id);
     renderMessages(connection.id);
 
-    // Then fetch fresh messages from Supabase
+    // Show loading bar only if we haven't fetched this chat from Supabase yet this session
+    const needsFetch = !fetchedConnections.has(connection.id);
+    if (needsFetch) showMessagesLoading(true);
+
+    // Fetch full message history from Supabase
     try {
       await window.AmepleAuth.fetchMessages(connection.id);
+      fetchedConnections.add(connection.id);
       renderMessages(connection.id);
+      saveMessagesToCache(connection.id);   // persist last 4 for next page load
+      saveConversationsToCache();           // update last-msg preview in conv cache
       // Mark messages as read
       window.AmepleAuth.markMessagesRead(connection.id);
       if (window.AmepleSidebarBadge) window.AmepleSidebarBadge.refresh();
     } catch (e) {
       console.warn('Failed to fetch messages:', e);
+    } finally {
+      showMessagesLoading(false);
     }
   }
 
@@ -788,6 +929,9 @@
     await window.AmepleAuth.saveMessage(activeConnectionId, message);
     renderMessages(activeConnectionId);
     loadConversations(); // Update preview
+    // Persist sent message in localStorage cache
+    saveMessagesToCache(activeConnectionId);
+    saveConversationsToCache();
   }
 
   // --- Helpers ---
