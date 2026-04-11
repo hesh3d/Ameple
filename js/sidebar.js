@@ -8,16 +8,20 @@
     initStatusDropdown();
     initCollapsibleSidebar();
     updateStatusDisplay();
-
-    // Notifications & badge
     requestNotificationPermission();
     refreshChatNavBadge();
-
-    // On non-chat pages, set up a lightweight realtime listener for the badge
-    if (!window.location.pathname.endsWith('chat.html')) {
-      setupGlobalNotificationListener();
-    }
   });
+
+  // ── Start realtime subscription ASAP — don't wait for DOMContentLoaded.
+  // This way the WebSocket handshake begins in parallel with page rendering,
+  // so by the time the user does anything the connection is already live.
+  if (!window.location.pathname.endsWith('chat.html')) {
+    if (window.AmepleSupabaseReady) {
+      window.AmepleSupabaseReady.then(function() {
+        setupGlobalNotificationListener();
+      });
+    }
+  }
 
   // --- Browser Notification Permission ---
   function requestNotificationPermission() {
@@ -120,13 +124,14 @@
 
         refreshChatNavBadge();
 
-        // Browser notification
+        // In-app toast + browser notification
         const connections = window.AmepleAuth.getConnections();
         const conn = connections.find(function(c) { return c.id === msg.connection_id; });
         const senderName = conn && conn.receiver
           ? ((conn.receiver.first_name || '') + ' ' + (conn.receiver.last_name || '')).trim()
           : 'New message';
         const avatar = (conn && conn.receiver && conn.receiver.avatar_url) || 'assets/logo.svg';
+        if (window.notyf) window.notyf.success('💬 ' + senderName + ': ' + msg.content.slice(0, 60));
         showBrowserNotification(senderName, msg.content.slice(0, 100), avatar);
       })
 
@@ -168,6 +173,7 @@
         } catch (e) { /* silent */ }
 
         refreshChatNavBadge();
+        if (window.notyf) window.notyf.success('👋 ' + senderName + ' sent you a connection request!');
         showBrowserNotification('New connection request', senderName + ' wants to connect with you', senderAvatar);
       })
 

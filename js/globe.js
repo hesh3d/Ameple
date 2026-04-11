@@ -369,14 +369,79 @@
     body.innerHTML = renderProfileCard(user);
     panel.classList.add('open');
 
-    // Parse emojis in the newly injected HTML (flags, etc.)
-
-    // Say Hello button
+    const currentUser = window.AmepleAuth.getCurrentUser() || {};
     const helloBtn = body.querySelector('.btn-say-hello');
-    if (helloBtn) {
-      helloBtn.addEventListener('click', function () {
-        openIceBreakerModal(user);
+
+    // Don't allow connecting with yourself
+    if (currentUser.id && user.id === currentUser.id) {
+      if (helloBtn) helloBtn.style.display = 'none';
+    } else if (helloBtn) {
+      // Check existing connection status and adapt button
+      const connections = window.AmepleAuth.getConnections();
+      const existingConn = connections.find(function(c) {
+        return (c.requester_id === currentUser.id && c.receiver_id === user.id) ||
+               (c.requester_id === user.id && c.receiver_id === currentUser.id);
       });
+
+      if (existingConn && existingConn.status === 'accepted') {
+        helloBtn.textContent = '💬 Open Chat';
+        helloBtn.addEventListener('click', function() {
+          window.location.href = 'chat.html';
+        });
+      } else if (existingConn && existingConn.status === 'pending' && existingConn.requester_id === currentUser.id) {
+        helloBtn.textContent = '⏳ Request Pending';
+        helloBtn.disabled = true;
+      } else if (existingConn && existingConn.status === 'pending' && existingConn.receiver_id === currentUser.id) {
+        helloBtn.textContent = '✅ Accept Request';
+        helloBtn.addEventListener('click', async function() {
+          await window.AmepleAuth.updateConnection(existingConn.id, { status: 'accepted' });
+          notyf.success('You are now connected with ' + user.first_name + '! 🤝');
+          closePanel();
+        });
+      } else {
+        helloBtn.addEventListener('click', function() {
+          openIceBreakerModal(user);
+        });
+      }
+
+      // ── Async Supabase check to refresh button if cache is stale ─────────
+      const sbPanel = window.AmepleSupabase;
+      if (sbPanel && currentUser.id && user.id) {
+        sbPanel.from('connections')
+          .select('*')
+          .in('sender_id', [currentUser.id, user.id])
+          .in('receiver_id', [currentUser.id, user.id])
+          .then(function(res) {
+            const dbConns = res.data;
+            if (!dbConns || !dbConns.length) return;
+            const dbConn = dbConns[0];
+            const localStatus = existingConn ? existingConn.status : null;
+            if (dbConn.status === localStatus) return; // already in sync
+
+            // Panel might be closed by now
+            if (!document.body.contains(helloBtn)) return;
+
+            // Remove old listeners by cloning
+            const freshBtn = helloBtn.cloneNode(true);
+            helloBtn.parentNode.replaceChild(freshBtn, helloBtn);
+
+            freshBtn.disabled = false;
+            if (dbConn.status === 'accepted') {
+              freshBtn.textContent = '💬 Open Chat';
+              freshBtn.addEventListener('click', function() { window.location.href = 'chat.html'; });
+            } else if (dbConn.status === 'pending' && dbConn.sender_id === currentUser.id) {
+              freshBtn.textContent = '⏳ Request Pending';
+              freshBtn.disabled = true;
+            } else if (dbConn.status === 'pending' && dbConn.sender_id === user.id) {
+              freshBtn.textContent = '✅ Accept Request';
+              freshBtn.addEventListener('click', async function() {
+                await window.AmepleAuth.updateConnection(dbConn.id, { status: 'accepted' });
+                notyf.success('You are now connected with ' + user.first_name + '! 🤝');
+                closePanel();
+              });
+            }
+          });
+      }
     }
 
     // Fly to user
@@ -785,13 +850,100 @@
         if (!msg) { notyf.error('Please write a message'); return; }
         if (msg.length > 500) { notyf.error('Your message is too long'); return; }
 
+        const currentUser = window.AmepleState.currentUser || {};
+
+        // Prevent self-connection
+        if (user.id && currentUser.id && user.id === currentUser.id) {
+          notyf.error("You can't connect with yourself!");
+          return;
+        }
+
+        // Check for existing connection — first from cache, then verify with Supabase
+        let connections = window.AmepleAuth.getConnections();
+        let existingConn = connections.find(function(c) {
+          return (c.requester_id === currentUser.id && c.receiver_id === user.id) ||
+                 (c.requester_id === user.id && c.receiver_id === currentUser.id);
+        });
+
+        // Fresh check from Supabase to avoid stale-cache duplicates
+        const sbCheck = window.AmepleSupabase;
+        if (sbCheck && currentUser.id && user.id) {
+          try {
+            const { data: dbConns } = await sbCheck
+              .from('connections')
+              .select('*')
+              .in('sender_id', [currentUser.id, user.id])
+              .in('receiver_id', [currentUser.id, user.id]);
+
+            if (dbConns && dbConns.length > 0) {
+              const dbConn = dbConns[0];
+              // Merge into cache if missing
+              if (!existingConn) {
+                const receiverId = dbConn.sender_id === currentUser.id ? dbConn.receiver_id : dbConn.sender_id;
+                existingConn = {
+                  id: dbConn.id,
+                  requester_id: dbConn.sender_id,
+                  receiver_id: dbConn.receiver_id,
+                  receiver: user,
+                  status: dbConn.status
+                };
+              } else {
+                existingConn.status = dbConn.status;
+                existingConn.id = dbConn.id;
+                existingConn.requester_id = dbConn.sender_id;
+                existingConn.receiver_id = dbConn.receiver_id;
+              }
+            }
+          } catch (e) { /* fall through with cache */ }
+        }
+
+        if (existingConn) {
+          if (existingConn.status === 'accepted') {
+            // ── Send directly into the existing conversation ──────────────
+            sendBtn.disabled = true;
+            sendBtn.textContent = 'Sending...';
+            try {
+              await window.AmepleAuth.saveMessage(existingConn.id, {
+                id: 'msg-' + Date.now(),
+                connection_id: existingConn.id,
+                sender_id: currentUser.id,
+                content: msg,
+                type: 'text',
+                is_read: false,
+                created_at: new Date().toISOString()
+              });
+              overlay.classList.remove('active');
+              notyf.success('Message sent to ' + user.first_name + '! 💬');
+              closePanel();
+            } catch (e) {
+              notyf.error('Failed to send. Please try again.');
+              sendBtn.disabled = false;
+              sendBtn.textContent = 'Send';
+            }
+            return;
+          }
+          if (existingConn.status === 'pending' && existingConn.requester_id === currentUser.id) {
+            notyf.error('You already sent a request to ' + user.first_name + '!');
+            overlay.classList.remove('active');
+            return;
+          }
+          if (existingConn.status === 'pending' && existingConn.receiver_id === currentUser.id) {
+            // They already sent us a request — auto-accept
+            await window.AmepleAuth.updateConnection(existingConn.id, { status: 'accepted' });
+            overlay.classList.remove('active');
+            notyf.success('You are now connected with ' + user.first_name + '! 🤝');
+            closePanel();
+            return;
+          }
+        }
+
         sendBtn.disabled = true;
         sendBtn.textContent = 'Sending...';
 
         // Save connection request to Supabase
         const connection = {
           id: 'conn-' + Date.now(),
-          requester_id: (window.AmepleState.currentUser || {}).id || 'local',
+          requester_id: currentUser.id || 'local',
           receiver_id: user.id,
           receiver: user,
           status: 'pending',
