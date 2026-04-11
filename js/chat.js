@@ -124,20 +124,6 @@
   const fetchedConnections = new Set();
 
   // Show/hide the animated loading bar above the messages area
-  function showMessagesLoading(show) {
-    let bar = document.getElementById('messages-loading-bar');
-    if (!bar) {
-      bar = document.createElement('div');
-      bar.id = 'messages-loading-bar';
-      bar.className = 'messages-loading-bar';
-      bar.style.display = 'none';
-      const container = document.getElementById('chat-messages');
-      if (container && container.parentNode) {
-        container.parentNode.insertBefore(bar, container);
-      }
-    }
-    bar.style.display = show ? 'block' : 'none';
-  }
   // ───────────────────────────────────────────────────────────────────────────
 
   document.addEventListener('DOMContentLoaded', function() {
@@ -756,28 +742,85 @@
     const videoBtn = document.querySelector('[title="Video Call"]');
     if (videoBtn) videoBtn.onclick = () => startCall('video');
 
-    // Show cached messages instantly (last 4 from localStorage, or whatever is in memory)
+    // Show cached messages instantly (newest 4 from localStorage)
     loadMessagesFromCache(connection.id);
     renderMessages(connection.id);
 
-    // Show loading bar only if we haven't fetched this chat from Supabase yet this session
-    const needsFetch = !fetchedConnections.has(connection.id);
-    if (needsFetch) showMessagesLoading(true);
+    // Attach scroll-to-top listener for loading older messages
+    setupLoadMoreOnScroll(connection.id);
 
-    // Fetch full message history from Supabase
+    // Silently fetch the latest 20 messages from Supabase (no loading bar)
     try {
-      await window.AmepleAuth.fetchMessages(connection.id);
+      await window.AmepleAuth.fetchMessages(connection.id, 20);
       fetchedConnections.add(connection.id);
       renderMessages(connection.id);
-      saveMessagesToCache(connection.id);   // persist last 4 for next page load
-      saveConversationsToCache();           // update last-msg preview in conv cache
-      // Mark messages as read
+      saveMessagesToCache(connection.id);
+      saveConversationsToCache();
       window.AmepleAuth.markMessagesRead(connection.id);
       if (window.AmepleSidebarBadge) window.AmepleSidebarBadge.refresh();
     } catch (e) {
       console.warn('Failed to fetch messages:', e);
+    }
+  }
+
+  // ── Scroll-to-top triggers loading of older messages ──────────────────────
+  const _loadingOlder = {}; // prevent concurrent fetches per connection
+
+  function setupLoadMoreOnScroll(connectionId) {
+    const container = document.getElementById('chat-messages');
+    if (!container) return;
+
+    // Remove any previous listener by replacing with a fresh clone
+    const fresh = container.cloneNode(true);
+    container.parentNode.replaceChild(fresh, container);
+
+    fresh.addEventListener('scroll', function() {
+      if (fresh.scrollTop > 60) return; // only trigger near the very top
+      loadOlderMessages(connectionId);
+    });
+  }
+
+  async function loadOlderMessages(connectionId) {
+    if (_loadingOlder[connectionId]) return; // already fetching
+
+    const msgs = window.AmepleAuth.getMessages(connectionId);
+    if (!msgs.length) return;
+
+    const oldest = msgs[0];
+
+    // Show a subtle "loading" row at the top
+    const container = document.getElementById('chat-messages');
+    if (!container) return;
+
+    let loadingRow = document.getElementById('load-older-indicator');
+    if (!loadingRow) {
+      loadingRow = document.createElement('div');
+      loadingRow.id = 'load-older-indicator';
+      loadingRow.style.cssText = 'text-align:center;padding:10px;font-size:13px;color:#9CA3AF;';
+      loadingRow.textContent = 'Loading earlier messages…';
+      container.insertBefore(loadingRow, container.firstChild);
+    }
+
+    _loadingOlder[connectionId] = true;
+    const prevScrollHeight = container.scrollHeight;
+
+    try {
+      const fetched = await window.AmepleAuth.fetchOlderMessages(connectionId, oldest.created_at, 20);
+
+      if (fetched.length === 0) {
+        // No more older messages
+        loadingRow.textContent = 'No earlier messages';
+        setTimeout(function() { if (loadingRow.parentNode) loadingRow.remove(); }, 1500);
+      } else {
+        if (loadingRow.parentNode) loadingRow.remove();
+        renderMessages(connectionId);
+        // Restore scroll position so user stays at the same spot
+        container.scrollTop = container.scrollHeight - prevScrollHeight;
+      }
+    } catch (e) {
+      if (loadingRow.parentNode) loadingRow.remove();
     } finally {
-      showMessagesLoading(false);
+      _loadingOlder[connectionId] = false;
     }
   }
 

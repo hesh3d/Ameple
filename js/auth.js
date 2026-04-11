@@ -546,36 +546,100 @@
       return (window.AmepleState.messages || {})[connectionId] || [];
     },
 
-    fetchMessages: async function(connectionId) {
+    fetchMessages: async function(connectionId, limit) {
       const sb = await getSupabase();
       if (!sb) return this.getMessages(connectionId);
+
+      try {
+        // If limit given: fetch newest N messages (desc then reverse → ascending)
+        // If no limit: fetch all messages in ascending order
+        let query = sb
+          .from('messages')
+          .select('*')
+          .eq('connection_id', connectionId);
+
+        if (limit) {
+          query = query.order('created_at', { ascending: false }).limit(limit);
+        } else {
+          query = query.order('created_at', { ascending: true });
+        }
+
+        const { data, error } = await query;
+        if (error) throw error;
+
+        const rows = limit ? (data || []).reverse() : (data || []);
+        const formatted = rows.map(function(msg) {
+          return {
+            id: msg.id, connection_id: msg.connection_id,
+            sender_id: msg.sender_id, content: msg.content,
+            type: msg.type || 'text', call_type: msg.call_type,
+            duration: msg.duration, is_read: msg.is_read,
+            created_at: msg.created_at
+          };
+        });
+
+        const allMessages = window.AmepleState.messages || {};
+        // Merge: keep any optimistic/realtime messages newer than the fetched range
+        const existing = allMessages[connectionId] || [];
+        if (formatted.length > 0) {
+          const newestFetched = formatted[formatted.length - 1].created_at;
+          const newer = existing.filter(function(m) {
+            return m.created_at > newestFetched && !formatted.some(function(f) { return f.id === m.id; });
+          });
+          allMessages[connectionId] = [...formatted, ...newer];
+        } else {
+          allMessages[connectionId] = existing;
+        }
+        window.AmepleState.messages = allMessages;
+        return allMessages[connectionId];
+      } catch (e) {
+        console.warn('fetchMessages error:', e);
+        return this.getMessages(connectionId);
+      }
+    },
+
+    // Fetch messages older than `beforeTimestamp` and prepend to in-memory state
+    fetchOlderMessages: async function(connectionId, beforeTimestamp, limit) {
+      const sb = await getSupabase();
+      if (!sb) return [];
 
       try {
         const { data, error } = await sb
           .from('messages')
           .select('*')
           .eq('connection_id', connectionId)
-          .order('created_at', { ascending: true });
+          .lt('created_at', beforeTimestamp)
+          .order('created_at', { ascending: false })
+          .limit(limit || 20);
 
         if (error) throw error;
 
-        const allMessages = window.AmepleState.messages || {};
-        allMessages[connectionId] = data.map(msg => ({
-          id: msg.id,
-          connection_id: msg.connection_id,
-          sender_id: msg.sender_id,
-          content: msg.content,
-          type: msg.type || 'text',
-          call_type: msg.call_type,
-          duration: msg.duration,
-          is_read: msg.is_read,
-          created_at: msg.created_at
-        }));
-        window.AmepleState.messages = allMessages;
-        return allMessages[connectionId];
+        const older = (data || []).reverse().map(function(msg) {
+          return {
+            id: msg.id, connection_id: msg.connection_id,
+            sender_id: msg.sender_id, content: msg.content,
+            type: msg.type || 'text', call_type: msg.call_type,
+            duration: msg.duration, is_read: msg.is_read,
+            created_at: msg.created_at
+          };
+        });
+
+        if (older.length > 0) {
+          const allMessages = window.AmepleState.messages || {};
+          const existing = allMessages[connectionId] || [];
+          const existingIds = new Set(existing.map(function(m) { return m.id; }));
+          // Prepend only messages not already in memory
+          allMessages[connectionId] = [
+            ...older.filter(function(m) { return !existingIds.has(m.id); }),
+            ...existing
+          ];
+          window.AmepleState.messages = allMessages;
+        }
+
+        return older;
       } catch (e) {
-        console.warn('fetchMessages error:', e);
-        return this.getMessages(connectionId);
+        console.warn('fetchOlderMessages error:', e);
+        return [];
       }
     },
 
