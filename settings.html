@@ -199,19 +199,19 @@
           <div class="settings-section-title">👤 Account</div>
           <div class="settings-row">
             <span class="settings-row-label">Email</span>
-            <span class="settings-row-value" id="settings-email">—</span>
+            <span class="settings-row-value" id="settings-email"></span>
           </div>
           <div class="settings-row">
             <span class="settings-row-label">Name</span>
-            <span class="settings-row-value" id="settings-name">—</span>
+            <span class="settings-row-value" id="settings-name"></span>
           </div>
           <div class="settings-row">
             <span class="settings-row-label">Country</span>
-            <span class="settings-row-value" id="settings-country">—</span>
+            <span class="settings-row-value" id="settings-country"></span>
           </div>
           <div class="settings-row">
             <span class="settings-row-label">Member since</span>
-            <span class="settings-row-value" id="settings-joined">—</span>
+            <span class="settings-row-value" id="settings-joined"></span>
           </div>
         </div>
 
@@ -241,6 +241,21 @@
     if (!window.AmepleAuth.isLoggedIn()) {
       window.location.href = 'index.html';
     }
+
+    // Fill settings fields synchronously from localStorage cache — zero flash
+    (function() {
+      try {
+        var cached = JSON.parse(localStorage.getItem('ameple_profile') || 'null');
+        if (!cached) return;
+        var el;
+        el = document.getElementById('settings-email');   if (el) el.textContent = cached.email || '';
+        el = document.getElementById('settings-name');    if (el) el.textContent = ((cached.first_name || '') + ' ' + (cached.last_name || '')).trim();
+        el = document.getElementById('settings-country'); if (el) el.textContent = (cached.flag || '') + ' ' + (cached.country || '');
+        el = document.getElementById('settings-joined');  if (el) el.textContent = cached.created_at ? new Date(cached.created_at).toLocaleDateString() : '';
+        var avatar = document.getElementById('sidebar-user-avatar');
+        if (avatar && cached.avatar_url) avatar.src = cached.avatar_url;
+      } catch (e) {}
+    })();
 
     document.addEventListener('DOMContentLoaded', async function() {
       var notyf = new Notyf({ duration: 3000, position: { x: 'right', y: 'top' } });
